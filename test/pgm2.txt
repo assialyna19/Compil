@@ -1,0 +1,8 @@
+PROGRAMME Nom
+VAR{
+REAL Z;
+INTEGER X,Y,T;
+}
+BEGIN
+
+END.
