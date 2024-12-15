@@ -30,11 +30,12 @@ typedef struct
   int state;
   char name[20];
   char code[20];
+  char type[60];
 } elt;
 
 
 element tab[1000]; // Table des symboles pour les variables et constantes
-elt tabs[40], // Table des séparateurs.
+elt tabs[40]; // Table des séparateurs.
 elt tabm[40]; // Table des mots-clés
 extern char sav[20];
 char chaine[] = "";
@@ -91,7 +92,7 @@ void inserer(char entite[], char code[], char type[], char val[], int y, int i)
 
 /***Step 4: La fonction Rechercher permet de verifier  si l'entité existe dèja dans la table des symboles */
 
-void rechercher(char entite[], char code[], char type[], int y, char val[20])
+void rechercher(char entite[], char code[], char type[], char val[20], int y )
 {
   int i;
   int current = 0;
@@ -119,7 +120,7 @@ void rechercher(char entite[], char code[], char type[], int y, char val[20])
       if (tabm[i].state == 0)
       {
         current = i;
-        inserer(entite, code, type, val, y, current);
+        inserer(entite, code, type, val, current, y);
         break;
       }
       else if (strcmp(tabm[i].name, entite) == 0)
@@ -134,7 +135,7 @@ void rechercher(char entite[], char code[], char type[], int y, char val[20])
       if (tabs[i].state == 0)
       {
         current = i;
-        inserer(entite, code, type, val, y, current);
+        inserer(entite, code, type, val, current, y);
         break;
       }
       else if (strcmp(tabs[i].name, entite) == 0)
@@ -163,7 +164,7 @@ void afficher()
 
     if (tab[i].state == 1)
     {
-      printf("\t|%10s  |%13s | %11s | %12s |\n", tab[i].name, tab[i].code, tab[i].type, tab[i].val);
+      printf("\t|%10s  |%13s | %11s | %12.2f|\n", tab[i].name, tab[i].code, tab[i].type, tab[i].val);
     }
   }
   printf("____________________________________________________________________\n\n");
@@ -211,8 +212,30 @@ int Rechercher_PosIDF(char entite[])
     i++;
   }
 
-  return -1;
+  return -1; // idf n'existe pas
 }
+
+/***Step 7 : la fonction qui permet de de vérifier l'existance d'une bibliotheque***/
+
+int rechercheBib(char entite[]) {
+  int i = 0;
+  for (i;i <40; i++){
+     if (strcmp(entite,tabm[i].name)==0){return 1;}//la bibliotheque existe
+  }
+  return 0; //la bibliotheque n'existe pas
+}
+
+
+/*** la fonction qui permet de vérifier si une variable (IDF) est déclarée ***/
+
+int rechercheNonDeclare(char entite[]) {
+  int pos;
+  pos =Rechercher_PosIDF(entite);
+       if (pos != -1 && strcmp(tab[pos].type," ")==0){ return 0;} // la variable n'est pas declaree.
+       else {return 1;} // la variable est declaree.
+}
+
+
 
 
 /*****  Ajoute un type à une variable */
@@ -226,6 +249,18 @@ void insererTypeIDF(char entite[], char type[])
   }
 }
 
+/***Step 10 : la fonction qui permet de vérifier si une bibliotheque est déja déclarée ou non ***/
+
+int DoubleDecBib(char entite[]){
+    
+    for (int i=0;i <40; i++){
+       if (strcmp(entite,tabm[i].name)==0 && strcmp(tabm[i].type," ")==0)
+       { return 0;}//la bibliotheque n'est pas declaree
+   }
+  return 1;//la bibliotheque est declaree
+
+}
+
 
 /***** Retourne un identifiant pour le type  */
 int get_type(char entite[]){
@@ -235,36 +270,37 @@ int get_type(char entite[]){
   if (strcmp(tab[pos].type,"INT")==0)      return 1;
   if (strcmp(tab[pos].type,"FLOAT")==0)   return 2;
   if (strcmp(tab[pos].type,"CHAR")==0)    return 3;
-  if (strcmp(tab[pos].type,"STRING")==0)  return 4;
+  
 }
-
+return -1;
 }
 
 
 /*****  Vérifie si une variable est redéclarée */
-int doubleDeclaration(char entite[])
-{
-  int pos;
-  pos = Rechercher_PosIDF(entite);
-  if(pos!= -1){
+int doubleDeclaration(char entite[]) { 
+  int pos = Rechercher_PosIDF(entite); 
+  if (pos != -1 && strcmp(tab[pos].type, "") == 0)
+ { return 0; } return -1; }
 
-  if (strcmp(tab[pos].type,"") ==0 )
-    return 0;
+/*****  Vérifie si une variable est redéclarée */
+int nonDeclared(char entite[])
+ { 
+  int pos = Rechercher_PosIDF(entite);
+   if (strcmp(tab[pos].type, "") == 0) {
+   return -1; 
+   }
+    return 0; }
+
+/***Step 14 : la fonction qui verifie si l'idf est une constante ***/
+
+int VerifIdfConst(char entite[]) { 
+  int pos = Rechercher_PosIDF(entite);
+   if (pos != -1 && strcmp(tab[pos].code, "IDF CONSTANT") == 0) 
+{ 
+  return 1; 
   }
+   return 0; }
 
-    return -1;
-}
-
-
-/*****  Vérifie si une variable est redéclarée */
-int nonDeclared(char entite[]){
- int pos;
-  pos = Rechercher_PosIDF(entite);
-  if (strcmp(tab[pos].type,"") == 0)
-    return -1;
-  else
-    return 0;
-}
 
 
 /*****  attribue une valeur (1/0) au champ VS d'une entité
@@ -276,31 +312,24 @@ void DonnerVS(char entite[] , int i)
  }
 
 
- int DemanderVS(char entite[]) // Retourne la valeur de VS
-{
-   int V;
-   V=tab[Rechercher_PosIDF(entite)].VS; 
-	return V ; 
-}
-
-
-/***** réinitialise un tableau de chaînes de caractères en y remplaçant toutes les chaînes par des chaînes vides ("") */
-void Re_TAB(char TAB[100][20] , int n ){
-	int i;
-	for (i=0 ; i<n ; i++)
-		strcpy (TAB[i] , "");
-}
+int DemanderVS(char entite[]) { 
+  return tab[Rechercher_PosIDF(entite)].VS;
+   } 
+   
+void Re_TAB(char TAB[100][20], int n) {
+   for (int i = 0; i < n; i++) { 
+    strcpy(TAB[i], ""); } 
+    }
 
 
 /***** met à jour la valeur (val) associée à une entité */
-void insererVAL(char entite[], char val[])
-{
+void insererVAL(char entite[], char val[]) { 
   int pos = Rechercher_PosIDF(entite);
-  if  (pos != -1) {
-                    strcpy(tab[pos].val,val);
-                   }
-}                   
-
+   if (pos != -1) {
+     strcpy(tab[pos].val, val); 
+     }
+ }
+ 
 
 /*****  modifie une chaîne val en: 
 Retirant les parenthèses entourant la chaîne (si elles existent)

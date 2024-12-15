@@ -1,9 +1,0 @@
-all: compiler
-
-compiler: lexical.l syntax.y
-    flex lexical.l
-    bison -d syntax.y
-    gcc lex.yy.c syntax.tab.c -o compiler.exe
-
-clean:
-    del lex.yy.c syntax.tab.* compiler.exe

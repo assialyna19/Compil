@@ -1,6 +1,0 @@
-PROGRAMME Nom
-VAR{
-}
-BEGIN
- @
-END.
