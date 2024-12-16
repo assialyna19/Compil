@@ -43,25 +43,33 @@ char chaine[] = "";
 
 /***Step 2: initialisation de l'état des cases des tables des symbloles***/
 /*0: la case est libre    1: la case est occupée*/
+void initialisation() {
+    // Réinitialisation complète de la table des mots-clés
+    for (int i = 0; i < 40; i++) {
+        tabs[i].state = 0;
+        tabm[i].state = 0;
+    }
 
-void initialisation()
-{
-  int i;
-  for (i = 0; i < 1000; i++)
-    tab[i].state = 0;
-
-  for (i = 0; i < 40; i++)
-  {
-    tabs[i].state = 0;
-    tabm[i].state = 0;
-  }
+    // Ajouter les mots-clés une seule fois
+    char* mots_cles[] = {"int", "float", "char", "void"};
+    for (int i = 0; i < 4; i++) {
+        tabm[i].state = 1;
+        strcpy(tabm[i].name, mots_cles[i]);
+        strcpy(tabm[i].code, "KEYWORD");
+        // ajouter les separateurs
+         char* mots_cles[] = {"sup", "inf", "supegale", "infegale","egale"};
+    for (int i = 0; i < 4; i++) {
+        tabs[i].state = 1;
+        strcpy(tabs[i].name, mots_cles[i]);
+        strcpy(tabs[i].code, "KEYWORD");
+        
+    }
+}
 }
 
+void inserer(char entite[], char code[], char type[], char val[], int y, int i) {
+    printf("Insertion de %s avec code %s, type %s, valeur %s\\n", entite, code, type, val);
 
-/***Step 3: insertion des entititées lexicales dans les tables des symboles ***/
-
-void inserer(char entite[], char code[], char type[], char val[], int y, int i)
-{
 
   switch (y)
   {
@@ -270,6 +278,7 @@ int get_type(char entite[]){
   if (strcmp(tab[pos].type,"INT")==0)      return 1;
   if (strcmp(tab[pos].type,"FLOAT")==0)   return 2;
   if (strcmp(tab[pos].type,"CHAR")==0)    return 3;
+  
   
 }
 return -1;

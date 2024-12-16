@@ -5,7 +5,7 @@
     #include <string.h>
     #include "syntaxique.tab.h"
     #include "ts.h"
-  
+  extern FILE *yyin;
     extern int nb_ligne;
     extern int col;
     extern YYSTYPE yylval;
@@ -155,6 +155,7 @@ COMMENTAIRE \/\/[^\n]*|\/\*([^*]|\*+[^*/])*\*+\/
         printf("Erreur : Identificateur trop long à la ligne %d, colonne %d : %s\n", nb_ligne, col, yytext);
     }
 }
+
 
 {INT} {
     int val = atoi(yytext);

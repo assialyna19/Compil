@@ -30,7 +30,7 @@
 	float calculResult[10];
 	char STR[100];
 	char v[20];
-	
+	extern FILE *yyin;
 	int  valCst;
 	char *valChar;
 	float valFloat;
@@ -57,7 +57,7 @@
 %token vg division soustraction addition multiplication parouv parferm point pourcentage acov acoferm <entier>entier <str>mc_bool <reel>reel 
 %start S
 %%
-S : C B 
+S : C PROGRAMME /* regle de debut , PROGR: le corp du code ; C c'est la routine */
  { printf(" Le programme est correcte syntaxiquement\n"); YYACCEPT; }
 ;
 ;
@@ -69,8 +69,12 @@ A:TYPE MC_ROUTINE MC_IDF parouv LIST_IDF parferm LIST_DEC LIST_INST pvg MC_ENDR
 ;
 L_R:LIST_R |
 ;
-B : MC_PROGRAMME MC_IDF LIST_DEC LIST_INST MC_END
-   |MC_PROGRAMME MC_IDF LIST_INST MC_END
+PROGRAMME :MC_PROGRAMME MC_IDF acov LIST_DEC LIST_INST acoferm MC_END
+       | MC_PROGRAMME MC_IDF LIST_INST MC_END
+	  
+       { printf("Programme valide reconnu\\n"); } 
+;
+
 ;
 TYPE : MC_INTEGER {strcpy(save,"INTEGER");}
 	  | MC_REAL {strcpy(save,"FLOAT");}
@@ -83,109 +87,100 @@ L_DEC: LIST_DEC
        |
 ;
   
+DEC_VAR: TYPE LIST_IDF pvg { 
+    for (j = 0; j < i; j++) {
+        // Vérification de la double déclaration
+        if (doubleDeclaration(IDF[j]) == 0) { 
+            // Si pas de double déclaration, insérer l'identifiant
+            insererTypeIDF(IDF[j], save);
+            DonnerVS(IDF[j], 1); // Marquer comme variable
+        } else if (doubleDeclaration(IDF[j]) == -1) {
+            // Gestion d'erreur pour double déclaration
+            printf("\n ==============> Erreur Sémantique : Double déclaration pour %s à la ligne : %d et colonne : %d <==============\n", IDF[j], nb_ligne, col);
+            return -1;
+        }
+    }
+    // Réinitialiser les structures après traitement
+    Re_TAB(IDF, i);
+    i = 0;
+} 
+| TYPE MC_IDF MC_DIMENSION parouv entier parferm pvg {
+    // Vérification des dimensions pour les tableaux
+    strcpy(sauvType, save);
+    if (doubleDeclaration($2) == 0) { 
+        insererTypeIDF($2, sauvType);
+        DonnerVS($2, 1); // Marquer comme variable
+    } else if (doubleDeclaration($2) == -1) {
+        printf("\n ==============> Erreur Sémantique : Double déclaration pour %s à la ligne : %d et colonne : %d <==============\n", $2, nb_ligne, col);
+        return -1;
+    }
 
-DEC_VAR: TYPE LIST_IDF pvg { for (j=0; j<i; j++)
-								   { if(doubleDeclaration(IDF[j])==0)	
-								   	{ 
-										insererTypeIDF(IDF[j] , save);
-								   		DonnerVS(IDF[j] ,1);
-									}
-								      	else{
-											 if(doubleDeclaration(IDF[j])==-1)
-								   				{
-										   		printf("\n ==============> Erreur Semantique : Double declaration a la ligne : %d et laColonne : %d <==============\n",nb_ligne,col);
-								   				return -1;
-												}
-								     		}
+    if ($5 < 0) {
+        // Vérification des dimensions invalides
+        printf("\n ==============> Erreur Sémantique : Dimension négative pour %s à la ligne : %d et colonne : %d <==============\n", $2, nb_ligne, col);
+        return -1;
+    }
+} 
+| TYPE MC_IDF MC_DIMENSION parouv entier vg entier parferm pvg {
+    strcpy(sauvType, save);
+    if (doubleDeclaration($2) == 0) { 
+        insererTypeIDF($2, sauvType);
+        DonnerVS($2, 1); // Marquer comme variable
+    } else if (doubleDeclaration($2) == -1) {
+        printf("\n ==============> Erreur Sémantique : Double déclaration pour %s à la ligne : %d et colonne : %d <==============\n", $2, nb_ligne, col);
+        return -1;
+    }
 
-								   }
-								   	Re_TAB(IDF,i); i=0;
-								   	} 
- | TYPE  MC_IDF MC_DIMENSION parouv entier  parferm pvg {strcpy(sauvType,save);	
-																	
-																	{ if(doubleDeclaration($2)==0)	
-																		{insererTypeIDF($2 , sauvType );
-																		 DonnerVS($2 ,1);
-																		 }
-																	   else { if(doubleDeclaration($2)==-1)
-																		{printf("\n /52==============> Erreur Semantique : Double declaration a la ligne : %d et laColonne : %d <==============\n",nb_ligne,col);
-																		return -1;}
-																	  }
-																	}
-																    
-																	if  ($5<0)
-																	{printf("\n ==============> Erreur Semantique : Fausse taille  a la ligne :%d  et laColonne : %d <==============\n",nb_ligne,col);
-																	return -1;}
-																	   }		
- |TYPE  MC_IDF MC_DIMENSION parouv entier   vg entier parferm pvg {strcpy(sauvType,save);	
-																	
-																	{ if(doubleDeclaration($2)==0)	
-																		{insererTypeIDF($2 , sauvType );
-																		 DonnerVS($2 ,1);
-																		 }
-																	   else { if(doubleDeclaration($2)==-1)
-																		{printf("\n /52==============> Erreur Semantique : Double declaration a la ligne : %d et laColonne : %d <==============\n",nb_ligne,col);
-																		return -1;}
-																	  }
-																	}
+    if (($7 < $5) || ($5 < 0)) {
+        // Vérification des dimensions invalides
+        printf("\n ==============> Erreur Sémantique : Dimension invalide pour %s à la ligne : %d et colonne : %d <==============\n", $2, nb_ligne, col);
+        return -1;
+    }
+} 
+| TYPE MC_IDF aff VAL pvg {
+    // Gestion des déclarations avec affectation
+    int x = doubleDeclaration($2);
+    if (x == -1) {
+        // Gestion des cas spécifiques
+        if (getCstDec($2) == 0) {
+            printf("\n ==============> Erreur Sémantique : Constante %s redéclarée à la ligne : %d <==============\n", $2, nb_ligne);
+            return -1;
+        } else if (get_type($2) != type) {
+            printf("\n ==============> Erreur Sémantique : Incompatibilité de type pour %s à la ligne : %d <==============\n", $2, nb_ligne);
+            return -1;
+        }
+    } else {
+        // Insertion et initialisation en fonction du type
+        switch (type) {
+            case 1: // INT
+                insererTypeIDF($2, "INT");
+                sprintf(v, "%d", valCst);
+                DonnerVS($2, 0); // Marquer comme constante
+                insererVAL($2, v);
+                break;
+            case 2: // FLOAT
+                insererTypeIDF($2, "FLOAT");
+                sprintf(v, "%f", valCst);
+                insererVAL($2, v);
+                break;
+            case 3: // CHAR
+                insererTypeIDF($2, "CHAR");
+                insererVAL($2, cstStr);
+                break;
+            case 4: // STRING
+                insererTypeIDF($2, "STRING");
+                insererVAL($2, cstStr);
+                break;
+			
+        }
+        setCstDec($2, 0); // Marquer comme déclaré
+        updateCodeCst($2, 0); // Mettre à jour le code
+    }
 
-																    
-																	if (($7<$5) || ($5<0))
-																	{printf("\n ==============> Erreur Semantique : Fausse taille  a la ligne :%d  et laColonne : %d <==============\n",nb_ligne,col);
-																	return -1;}
-																	   }
- | TYPE MC_IDF aff VAL pvg { int x = doubleDeclaration($2);
-												if(x==-1)
-													{
-														if(getCstDec($2)==0){
-
-														printf("\n ==============> Erreur Semantique : Double declaration a la ligne %d <==============\n",nb_ligne);
-														return -1;
-														}
-														else if(get_type($2)!=type){
-															printf("\n ==============> Erreur Semantique :Incompatibilte des types a la ligne %d <==============\n",nb_ligne);
-														return -1;
-														}
-														
-													}
-												else switch (type)
-												{
-												case 1 : 
-													insererTypeIDF($2 ,"INT");
-													sprintf(v , "%d" , valCst);
-													DonnerVS($2,0);
-													insererVAL($2,v);
-
-													
-												break;
-
-												case 2 :
-													insererTypeIDF($2,"FLOAT");
-													
-													sprintf(v , "%f" , valCst);	
-													insererVAL($2,v);
-
-												break;
-
-												case 3 :
-													insererTypeIDF($2,"CHAR");
-													
-													insererVAL($2,cstStr);
-												break;
-
-												case 4 :
-													insererTypeIDF($2,"STRING");
-													
-													insererVAL($2,cstStr);
-												break;
-												
-												} 
-													setCstDec($2,0);
-													updateCodeCst($2,0);
-
-												Re_TAB(IDF,i);i=0;
- } 
-;
+    // Réinitialiser après traitement
+    Re_TAB(IDF, i);
+    i = 0;
+};
 
 LIST_IDF: MC_IDF vg LIST_IDF {  strcpy(IDFF , $1);  strcpy(IDF[i] , IDFF);  i++;  }
          | MC_IDF   {  strcpy(IDFF , $1);  strcpy(IDF[i] , IDFF);  i++;  }
@@ -465,7 +460,12 @@ VAL: entier | mc_bool | reel | MC_CHAINE | MC_CARACTERE
 %%
 int main()
 {
+	
     initialisation();
+    FILE *f = fopen("test.txt", "r");
+    if (f) {
+        yyin = f;
+    }
     yyparse(); 
     afficher();
 	return 0;
@@ -474,8 +474,7 @@ int main()
 int yywrap(){
 	return 1;
 }
-
 void yyerror(const char *s)
 {
-	fprintf (stderr, "Erreur syntaxique: %s\n", s);
+    fprintf(stderr, "Erreur syntaxique: %s à la ligne %d, colonne %d\\n", s, nb_ligne, col);
 }

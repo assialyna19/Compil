@@ -1,5 +1,5 @@
 PROGRAMME ACADC
-VAR{
+VAR 
 // commentaire
 INTEGER L, N_1, m, Tab[9], n,i,j, Nombre ;
 REAL Mi, hi, Ti, Si;
@@ -8,7 +8,7 @@ CONST val = -9 ;
 INTEGER Tab2[-2] ;
 REAL Tab3[0] ;
 // commentaire
-}
+
 BEGIN
 /* commentaire */
 IF((Aa > L) && (!N_1 )){  Mi=L+2.6;

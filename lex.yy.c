@@ -490,7 +490,7 @@ char *yytext;
     #include <string.h>
     #include "syntaxique.tab.h"
     #include "ts.h"
-  
+  extern FILE *yyin;
     extern int nb_ligne;
     extern int col;
     extern YYSTYPE yylval;
@@ -930,7 +930,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 159 "lexical.l"
+#line 160 "lexical.l"
 {
     int val = atoi(yytext);
     if (val >= -32768 && val <= 32767) {
@@ -946,7 +946,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 172 "lexical.l"
+#line 173 "lexical.l"
 {
     printf("CST réelle reconnue : %s\n", yytext);
     yylval.reel = atof(yytext);
@@ -956,7 +956,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 179 "lexical.l"
+#line 180 "lexical.l"
 { 
     printf("L'entité lexicale reconnue est %s\n", yytext); 
     yylval.entier = atoi(yytext);
@@ -968,7 +968,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 188 "lexical.l"
+#line 189 "lexical.l"
 {    
     printf("L'entité lexicale reconnue est %s\n", yytext); 
     yylval.reel = atoi(yytext);
@@ -980,7 +980,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 197 "lexical.l"
+#line 198 "lexical.l"
 {    
     printf("L'entité lexicale reconnue est %s\n", yytext); 
     yylval.reel = atoi(yytext);
@@ -992,7 +992,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 206 "lexical.l"
+#line 207 "lexical.l"
 {
     printf("Commentaire ignoré\n");
     for (int i = 0; i < strlen(yytext); i++) {
@@ -1007,7 +1007,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 218 "lexical.l"
+#line 219 "lexical.l"
 {
     printf("Caractère reconnu : %s\n", yytext);
     col += strlen(yytext);
@@ -1016,7 +1016,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 224 "lexical.l"
+#line 225 "lexical.l"
 {
     if (strlen(yytext) <= 22) {
         printf("Chaîne reconnue : %s\n", yytext);
@@ -1030,7 +1030,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 235 "lexical.l"
+#line 236 "lexical.l"
 { 
     printf("Opérateur ET logique reconnu\n"); 
     col += strlen(yytext); 
@@ -1038,7 +1038,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 240 "lexical.l"
+#line 241 "lexical.l"
 { 
     printf("Opérateur OU logique reconnu\n"); 
     col += strlen(yytext); 
@@ -1046,7 +1046,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 245 "lexical.l"
+#line 246 "lexical.l"
 { 
     printf("Opérateur Négation logique reconnu\n"); 
     col += strlen(yytext); 
@@ -1054,7 +1054,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 250 "lexical.l"
+#line 251 "lexical.l"
 { 
     printf("Séparateur '>' reconnu\n"); 
     col += strlen(yytext); 
@@ -1062,7 +1062,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 255 "lexical.l"
+#line 256 "lexical.l"
 { 
     printf("Opérateur '<' reconnu\n"); 
     col += strlen(yytext); 
@@ -1070,7 +1070,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 260 "lexical.l"
+#line 261 "lexical.l"
 { 
     printf("séparateur '>=' reconnu\n"); 
     col += strlen(yytext); 
@@ -1078,7 +1078,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 265 "lexical.l"
+#line 266 "lexical.l"
 { 
     printf("séparateur '<=' reconnu\n"); 
     col += strlen(yytext); 
@@ -1086,7 +1086,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 270 "lexical.l"
+#line 271 "lexical.l"
 { 
     printf("séparateur '==' reconnu\n"); 
     col += strlen(yytext); 
@@ -1094,7 +1094,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 275 "lexical.l"
+#line 276 "lexical.l"
 { 
     printf("séparateur '!=' reconnu\n"); 
     col += strlen(yytext); 
@@ -1102,7 +1102,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 280 "lexical.l"
+#line 281 "lexical.l"
 { 
     rechercher(yytext,"Mot cle",0,0,2); 
     printf("Virgule reconnue\n"); 
@@ -1111,7 +1111,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 286 "lexical.l"
+#line 287 "lexical.l"
 { 
     rechercher(yytext,"Mot cle",0,0,2); 
     printf("Point-virgule reconnu\n"); 
@@ -1120,7 +1120,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 292 "lexical.l"
+#line 293 "lexical.l"
 { 
     rechercher(yytext,"Mot cle",0,0,2); 
     printf("Division reconnue\n"); 
@@ -1129,7 +1129,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 298 "lexical.l"
+#line 299 "lexical.l"
 { 
     rechercher(yytext,"Mot cle",0,0,2); 
     printf("Soustraction reconnue\n"); 
@@ -1138,7 +1138,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 304 "lexical.l"
+#line 305 "lexical.l"
 { 
     rechercher(yytext,"Mot cle",0,0,2); 
     printf("Addition reconnue\n"); 
@@ -1147,7 +1147,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 310 "lexical.l"
+#line 311 "lexical.l"
 { 
     rechercher(yytext,"Mot cle",0,0,2); 
     printf("Affectation reconnue\n"); 
@@ -1156,7 +1156,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 316 "lexical.l"
+#line 317 "lexical.l"
 { 
     rechercher(yytext,"Mot cle",0,0,2); 
     printf("Multiplication reconnue\n"); 
@@ -1165,7 +1165,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 322 "lexical.l"
+#line 323 "lexical.l"
 { 
     rechercher(yytext,"Mot cle",0,0,2); 
     printf("Parenthèse ouvrante reconnue\n"); 
@@ -1174,7 +1174,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 328 "lexical.l"
+#line 329 "lexical.l"
 { 
     rechercher(yytext,"Mot cle",0,0,2); 
     printf("Parenthèse fermante reconnue\n"); 
@@ -1183,7 +1183,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 334 "lexical.l"
+#line 335 "lexical.l"
 { 
     rechercher(yytext,"Mot cle",0,0,2); 
     printf("Point séparateur reconnu\n"); 
@@ -1192,7 +1192,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 340 "lexical.l"
+#line 341 "lexical.l"
 { 
     rechercher(yytext,"Mot cle",0,0,2); 
     printf("Pourcentage reconnu\n"); 
@@ -1201,7 +1201,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 346 "lexical.l"
+#line 347 "lexical.l"
 { 
     rechercher(yytext,"Mot cle",0,0,2); 
     printf("Accolade ouverte reconnue\n"); 
@@ -1210,7 +1210,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 352 "lexical.l"
+#line 353 "lexical.l"
 { 
     rechercher(yytext,"Mot cle",0,0,2); 
     printf("Accolade fermante reconnue\n"); 
@@ -1219,17 +1219,17 @@ YY_RULE_SETUP
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 358 "lexical.l"
+#line 359 "lexical.l"
 { col += strlen(yytext); }
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 360 "lexical.l"
+#line 361 "lexical.l"
 { nb_ligne++; col = 1; }
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 362 "lexical.l"
+#line 363 "lexical.l"
 {
     printf("Erreur lexicale : Ligne %d, Colonne %d, Caractère inconnu : %s\n", nb_ligne, col, yytext);
     return ERREUR_LEXICAL;
@@ -1237,7 +1237,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 366 "lexical.l"
+#line 367 "lexical.l"
 ECHO;
 	YY_BREAK
 #line 1244 "lex.yy.c"
@@ -2124,4 +2124,4 @@ int main()
 	return 0;
 	}
 #endif
-#line 366 "lexical.l"
+#line 367 "lexical.l"
