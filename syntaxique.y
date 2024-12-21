@@ -4,8 +4,12 @@
 	#include <stdlib.h>
 	#include <string.h>
 	#include "ts.h"
+	#include "syntaxique.tab.h"
+     int yylex();
+     int yyerror(char *msg);
 
-	void yyerror(const char *s);
+
+
     int nb_ligne=1, col=1;
     int i=0;	
 	int j=0;
@@ -37,56 +41,77 @@
 	char *valStr;
 
 	int condition=0;
+	
+		void yyerror(const char *s)
+{
+    fprintf(stderr, "Erreur syntaxique: %s à la ligne %d, colonne %d\\n", s, nb_ligne, col);
+}
 
 
 %}
 
 %union {
-         int     entier;
-         char*   str;
-         float reel;
+      int     entier;
+      char*   str;
+      float   reel;
 }
 
 %token cst_int
 %token cst_real
 %token cst_str
-%token MC_NEGATION_LOGIQUE
+
 %token ERREUR_LEXICAL
-%token MC_PROGRAMME MC_END <str>MC_IDF <str>MC_CHAINE pvg aff MC_writeln MC_READLN MC_ENDIF MC_ELSE MC_THEN MC_IF MC_ENDDO MC_BEGIN MC_FOR MC_WHILE MC_DO MC_ENTIER MC_REAL
-%token MC_VAR MC_CONST MC_CARACTERE MC_INTEGER MC_DIMENSION MC_ROUTINE MC_ENDR MC_TAB MC_SUP MC_SUPEGAL MC_INF MC_NOEGAL MC_EGAL MC_OR MC_AND MC_INFEGAL
-%token vg division soustraction addition multiplication parouv parferm point pourcentage acov acoferm <entier>entier <str>mc_bool <reel>reel 
+%token MC_PROGRAMME MC_END <str>MC_IDF <str>MC_CHAINE MC_writeln MC_READLN MC_ENDIF MC_ELSE MC_THEN MC_IF MC_ENDDO MC_BEGIN MC_FOR MC_WHILE MC_DO MC_ENTIER MC_REAL
+%token MC_VAR MC_CONST MC_CARACTERE MC_INTEGER MC_DIMENSION MC_ROUTINE MC_ENDR MC_TAB MC_SUP MC_SUPEGAL MC_INF MC_NOEGAL MC_EGAL MC_OR MC_AND MC_INFEGAL Int
+%token pvg vg th division crof crou soustraction addition multiplication parouv parferm couvrante cfermante point aff pourcentage acov acoferm <entier>entier <str>mc_bool <reel>reel 
+%token MC_NEGATION_LOGIQUE
+
 %start S
+%right  MC_NEGATION_LOGIQUE
+%left OU
+%left ET
+%left inf sup infe supe
+%right aff
+%left addition soustraction
+%left multiplication division
 %%
-S : C PROGRAMME /* regle de debut , PROGR: le corp du code ; C c'est la routine */
- { printf(" Le programme est correcte syntaxiquement\n"); YYACCEPT; }
-;
-;
-C:LIST_R |
-;
-LIST_R:A L_R  
-;
-A:TYPE MC_ROUTINE MC_IDF parouv LIST_IDF parferm LIST_DEC LIST_INST pvg MC_ENDR 
-;
-L_R:LIST_R |
-;
-PROGRAMME :MC_PROGRAMME MC_IDF acov LIST_DEC LIST_INST acoferm MC_END
-       | MC_PROGRAMME MC_IDF LIST_INST MC_END
-	  
-       { printf("Programme valide reconnu\\n"); } 
+S : PROGRAMME 
+
+
+PROGRAMME: MC_PROGRAMME MC_IDF MC_VAR acov LIST_DEC acoferm MC_BEGIN LIST_INST MC_END
+    {
+        printf("syntaxiquement correct\\n"); 
+		YYACCEPT;
+	} 
 ;
 
-;
 TYPE : MC_INTEGER {strcpy(save,"INTEGER");}
 	  | MC_REAL {strcpy(save,"FLOAT");}
 	  | MC_CARACTERE {strcpy(save,"caractere");}
       
 ;
-LIST_DEC : DEC_VAR L_DEC
+LIST_DEC : DEC_VAR  LIST_DEC 
+           | CONST_DECL  LIST_DEC
+		   | TAB_DECL  LIST_DEC 
+		   |
+		   
 ;
-L_DEC: LIST_DEC 
-       |
-;
+
   
+CONST_DECL : MC_CONST MC_IDF aff Int pvg {
+    // $2 est l'identifiant, $4 est l'entier
+    //printf("Constante déclarée : %s = %d\n", $2, $4);
+    // Insérer la constante dans la table des symboles ou autre traitement
+};
+
+TAB_DECL : TYPE MC_IDF crou Int crof pvg
+{
+    
+    printf("Tableau déclarée \n");
+
+};
+
+
 DEC_VAR: TYPE LIST_IDF pvg { 
     for (j = 0; j < i; j++) {
         // Vérification de la double déclaration
@@ -171,7 +196,6 @@ DEC_VAR: TYPE LIST_IDF pvg {
                 insererTypeIDF($2, "STRING");
                 insererVAL($2, cstStr);
                 break;
-			
         }
         setCstDec($2, 0); // Marquer comme déclaré
         updateCodeCst($2, 0); // Mettre à jour le code
@@ -187,11 +211,12 @@ LIST_IDF: MC_IDF vg LIST_IDF {  strcpy(IDFF , $1);  strcpy(IDF[i] , IDFF);  i++;
 ; 
                                                   
 
-LIST_INST:INST L_INST                                           
+LIST_INST:INST LIST_INST   
+        |  FOR LIST_INST
+		| WHILE LIST_INST
+		| IF_ELSE LIST_INST                                      
 ;		                                  
 
-L_INST: LIST_INST  |
-;
 
 INST: INST_READLN
     |INST_writeln
@@ -214,7 +239,7 @@ TYPE_AFF:MC_IDF  {
 		 				printf("Erreur Semantique idf non declare a la ligne : %d et laColonne : %d <============== \n ",nb_ligne,col);return -1;
 	 				}
 } 
-| VAL 
+|   
 | EXPRESSION
 ;
 AFF_COURT: MC_IDF {
@@ -316,7 +341,6 @@ EXPR_ARITH:MC_IDF aff CALCUL pvg;
 
 
 								};
-/*__________________________________________________________________________________________________________________________*/
 
 CALCUL: MC_IDF OPERATEUR_A MC_IDF {
 	 				if(nonDeclared($1 )==-1 ){
@@ -422,6 +446,7 @@ INST_IF: MC_IF  CONDITION_CPLX MC_THEN LIST_INST MC_ENDIF
 ;
 CONDITION_CPLX: CONDITION
                |parouv CONDITION point LIST_CONDITION point CONDITION parferm
+			   |MC_IF parouv parouv LIST_CONDITION parferm OPERATEUR_A parouv MC_NEGATION_LOGIQUE parouv MC_IDF parferm parferm
 ;
 CONDITION: parouv MC_IDF point LIST_CONDITION point VAL parferm   
            {
@@ -443,6 +468,7 @@ CONDITION: parouv MC_IDF point LIST_CONDITION point VAL parferm
           |parouv MC_IDF point LIST_CONDITION point EXPRESSION parferm
           |parouv EXPRESSION point LIST_CONDITION point VAL parferm
           |parouv EXPRESSION point LIST_CONDITION point MC_IDF parferm
+		  
 ;
 LIST_CONDITION: MC_SUP
                |MC_SUPEGAL
@@ -458,15 +484,24 @@ OPERATEUR_A : addition | multiplication | soustraction |division
 VAL: entier | mc_bool | reel | MC_CHAINE | MC_CARACTERE
 ;
 %%
-int main()
-{
-	
-    initialisation();
-    FILE *f = fopen("test.txt", "r");
-    if (f) {
-        yyin = f;
+int main(int argc, char *argv[])
+{ 
+     
+	if (argc != 2) {
+        printf("Usage: %s <fichier.txt>\n", argv[0]);
+        return 1;
     }
-    yyparse(); 
+    
+  
+    FILE *fichier = fopen(argv[1], "r");
+    if (fichier == NULL) {
+        perror("Erreur lors de l'ouverture du fichier");
+        return 1;
+    }
+    initialisation();
+   
+    yyin = fichier;
+    int result = yyparse();
     afficher();
 	return 0;
 }
@@ -474,7 +509,11 @@ int main()
 int yywrap(){
 	return 1;
 }
-void yyerror(const char *s)
+
+int parse() 
 {
-    fprintf(stderr, "Erreur syntaxique: %s à la ligne %d, colonne %d\\n", s, nb_ligne, col);
+
+ return yyparse();
+
 }
+

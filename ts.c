@@ -56,156 +56,170 @@ void initialisation() {
         tabm[i].state = 1;
         strcpy(tabm[i].name, mots_cles[i]);
         strcpy(tabm[i].code, "KEYWORD");
-        // ajouter les separateurs
-         char* mots_cles[] = {"sup", "inf", "supegale", "infegale","egale"};
-    for (int i = 0; i < 4; i++) {
-        tabs[i].state = 1;
-        strcpy(tabs[i].name, mots_cles[i]);
-        strcpy(tabs[i].code, "KEYWORD");
-        
     }
 }
-}
-
 void inserer(char entite[], char code[], char type[], char val[], int y, int i) {
-    printf("Insertion de %s avec code %s, type %s, valeur %s\\n", entite, code, type, val);
+    // Validation des champs
+    code = code ? code : "null";
+    type = type ? type : "null";
+    val = val ? val : "null";
 
+    // Affichage des informations d'insertion
+    printf("Insertion de %s avec code %s, type %s, valeur %s\n", entite, code, type, val);
 
-  switch (y)
-  {
-  case 0: /*insertion dans la table des IDF et des const */
-    if (tab[i-1].D == 1) i=i-1; // // Réutilise une case écrasée
-    tab[i].state = 1;
-    strcpy(tab[i].name, entite);
-    strcpy(tab[i].code, code);
-    strcpy(tab[i].type, type);
-    strcpy(tab[i].val,val);
-    tab[i].D=0;
-    break;
+    // Vérification des doublons
+    for (int j = 0; j < (y == 0 ? 1000 : 40); j++) {
+        if ((y == 0 && tab[j].state == 1 && strcmp(tab[j].name, entite) == 0) || 
+            (y == 1 && tabm[j].state == 1 && strcmp(tabm[j].name, entite) == 0) || 
+            (y == 2 && tabs[j].state == 1 && strcmp(tabs[j].name, entite) == 0)) {
+            printf("Erreur : L'entité %s existe déjà dans la table des symboles.\n", entite);
+            return; // Doublon détecté, annuler l'insertion
+        }
+    }
 
-  case 1: /*insertion dans la table des mc*/
-    tabm[i].state = 1;
-    strcpy(tabm[i].name, entite);
-    strcpy(tabm[i].code, code);
-    break;
-
-  case 2: /*insertion dans la table des séparateurs*/
-    tabs[i].state = 1;
-    strcpy(tabs[i].name, entite);
-    strcpy(tabs[i].code, code);
-    break;
-  }
+    // Insertion dans la table appropriée
+    switch (y) {
+        case 0: /* Insertion dans la table des IDF et des constantes */
+            if (tab[i - 1].D == 1) i = i - 1; // Réutilise une case écrasée
+            tab[i].state = 1;
+            strcpy(tab[i].name, entite);
+            strcpy(tab[i].code, code);
+            strcpy(tab[i].type, type);
+            strcpy(tab[i].val, val);
+            tab[i].D = 0;
+            break;
+        case 1: /* Insertion dans la table des mots-clés */
+            tabm[i].state = 1;
+            strcpy(tabm[i].name, entite);
+            strcpy(tabm[i].code, code);
+            break;
+        case 2: /* Insertion dans la table des séparateurs */
+            tabs[i].state = 1;
+            strcpy(tabs[i].name, entite);
+            strcpy(tabs[i].code, code);
+            break;
+    }
 }
 
 
 /***Step 4: La fonction Rechercher permet de verifier  si l'entité existe dèja dans la table des symboles */
+void rechercher(char entite[], char code[], char type[], char val[], int y) {
+    // Validation des champs
+    code = code ? code : "null";
+    type = type ? type : "null";
+    val = val ? val : "null";
 
-void rechercher(char entite[], char code[], char type[], char val[20], int y )
-{
-  int i;
-  int current = 0;
-  switch (y)
-  {
-  case 0: /*verifier si l'entité existe dans la table des idf et const*/
-    for (i = 0; i < 1000; i++)
-    {
-      if (tab[i].state == 0)
-      {
-        current = i;
-        inserer(entite, code, type, val, y, current);
-        break;
-      }
-      else if (strcmp(tab[i].name, entite) == 0)
-      {
-        break; // Trouvé
-      }
-    }
+    int current = -1; // Position d'insertion ou d'entité existante
+    switch (y) {
+        case 0: /* Recherche dans la table des IDF et des constantes */
+            for (int i = 0; i < 1000; i++) {
+                if (tab[i].state == 1 && strcmp(tab[i].name, entite) == 0) {
+                    printf("Entité trouvée : %s (position %d)\n", entite, i);
+                    return; // Entité déjà existante
+                } else if (tab[i].state == 0 && current == -1) {
+                    current = i; // Première case libre
+                }
+            }
+            if (current != -1) {
+                inserer(entite, code, type, val, y, current);
+            }
+            break;
 
-    break;
-  case 1: /*pour les MC*/
-    for (i = 0; i < 40; i++)
-    {
-      if (tabm[i].state == 0)
-      {
-        current = i;
-        inserer(entite, code, type, val, current, y);
-        break;
-      }
-      else if (strcmp(tabm[i].name, entite) == 0)
-      {
-        break;
-      }
+        case 1: /* Recherche dans la table des mots-clés */
+            for (int i = 0; i < 40; i++) {
+                if (tabm[i].state == 1 && strcmp(tabm[i].name, entite) == 0) {
+                    printf("Mot-clé trouvé : %s (position %d)\n", entite, i);
+                    return;
+                } else if (tabm[i].state == 0 && current == -1) {
+                    current = i;
+                }
+            }
+            if (current != -1) {
+                inserer(entite, code, type, val, current, y);
+            }
+            break;
+
+        case 2: /* Recherche dans la table des séparateurs */
+            for (int i = 0; i < 40; i++) {
+                if (tabs[i].state == 1 && strcmp(tabs[i].name, entite) == 0) {
+                    printf("Séparateur trouvé : %s (position %d)\n", entite, i);
+                    return;
+                } else if (tabs[i].state == 0 && current == -1) {
+                    current = i;
+                }
+            }
+            if (current != -1) {
+                inserer(entite, code, type, val, current, y);
+            }
+            break;
     }
-    break;
-  case 2: /*insertion dans la table des sep*/
-    for (i = 0; i < 40; i++)
-    {
-      if (tabs[i].state == 0)
-      {
-        current = i;
-        inserer(entite, code, type, val, current, y);
-        break;
-      }
-      else if (strcmp(tabs[i].name, entite) == 0)
-      {
-        break;
-      }
+}
+
+void debug_table(int y) {
+    printf("\n---- Débogage de la table (%d) ----\n", y);
+    if (y == 0) {
+        for (int i = 0; i < 1000; i++) {
+            if (tab[i].state == 1) {
+                printf("IDF : %s | Code : %s | Type : %s | Valeur : %s\n", 
+                       tab[i].name, tab[i].code, tab[i].type, tab[i].val);
+            }
+        }
+    } else if (y == 1) {
+        for (int i = 0; i < 40; i++) {
+            if (tabm[i].state == 1) {
+                printf("Mot-clé : %s | Code : %s\n", tabm[i].name, tabm[i].code);
+            }
+        }
+    } else if (y == 2) {
+        for (int i = 0; i < 40; i++) {
+            if (tabs[i].state == 1) {
+                printf("Séparateur : %s | Code : %s\n", tabs[i].name, tabs[i].code);
+            }
+        }
     }
-    break;
-  }
 }
 
 
 /***Step 5 L'affichage du contenue de la table des symboles ***/
 
-void afficher()
-{
-  int i;
-
-  printf("\n/***************Table des symboles IDF ET CONST*************/\n");
-  printf("____________________________________________________________________\n");
-  printf("\t| Nom_Entite |  Code_Entite | Type_Entite | Val_Entite\n");
-  printf("____________________________________________________________________\n");
-
-  for (i = 0; i < 1000; i++)
-  {
-
-    if (tab[i].state == 1)
-    {
-      printf("\t|%10s  |%13s | %11s | %12.2f|\n", tab[i].name, tab[i].code, tab[i].type, tab[i].val);
+void afficher() {
+    printf("\n/*************** Table des symboles ***************/\n");
+    printf("____________________________________________________________________\n");
+    printf("| Nom Entité  | Code Entité  | Type Entité  | Valeur Entité |\n");
+    printf("____________________________________________________________________\n");
+    for (int i = 0; i < 1000; i++) {
+        if (tab[i].state == 1) {
+            printf("| %10s | %12s | %12s | %12s |\n", 
+                    tab[i].name ? tab[i].name : "null", 
+       tab[i].code ? tab[i].code : "null", 
+       tab[i].type && strlen(tab[i].type) > 0 ? tab[i].type : "null", 
+       tab[i].val && strlen(tab[i].val) > 0 ? tab[i].val : "null");
+        }
     }
-  }
-  printf("____________________________________________________________________\n\n");
+    printf("____________________________________________________________________\n");
 
-  printf("\n/***************Table des symboles Mot cles*************/\n");
-
-  printf("_______________________________________\n");
-  printf("\t| NomEntite     |  CodeEntite | \n");
-  printf("_______________________________________\n");
-
-  for (i = 0; i < 40; i++)
-  {
-    if (tabm[i].state == 1)
-    {
-      printf("\t|%14s |%12s | \n", tabm[i].name, tabm[i].code);
+    printf("\n/*************** Table des mots-clés ***************/\n");
+printf("_________________________________________\n");
+printf("| Nom Entité  | Code Entité  |\n");
+printf("_________________________________________\n");
+for (int i = 0; i < 40; i++) {
+    if (tabm[i].state == 1) {
+        printf("| %10s | %12s |\n", tabm[i].name, tabm[i].code);
     }
-  }
-  printf("_______________________________________\n\n");
-  printf("\n/***************Table des symboles separateurs*************/\n");
+}
+printf("_________________________________________\n");
 
-  printf("_________________________________________\n");
-  printf("\t| NomEntite |  CodeEntite | \n");
-  printf("_________________________________________\n");
-
-  for (i = 0; i < 40; i++)
-  {
-
-    if (tabs[i].state == 1)
-    {
-      printf("\t|%10s |%12s | \n", tabs[i].name, tabs[i].code);
+printf("\n/*************** Table des séparateurs ***************/\n");
+printf("_________________________________________\n");
+printf("| Nom Entité  | Code Entité  |\n");
+printf("_________________________________________\n");
+for (int i = 0; i < 40; i++) {
+    if (tabs[i].state == 1) {
+        printf("| %10s | %12s |\n", tabs[i].name, tabs[i].code);
     }
-  }
-  printf("_____________________________________\n");
+}
+printf("_________________________________________\n");
+
 }
 
 
@@ -279,18 +293,20 @@ int get_type(char entite[]){
   if (strcmp(tab[pos].type,"FLOAT")==0)   return 2;
   if (strcmp(tab[pos].type,"CHAR")==0)    return 3;
   
-  
 }
 return -1;
 }
 
 
 /*****  Vérifie si une variable est redéclarée */
-int doubleDeclaration(char entite[]) { 
-  int pos = Rechercher_PosIDF(entite); 
-  if (pos != -1 && strcmp(tab[pos].type, "") == 0)
- { return 0; } return -1; }
-
+int doubleDeclaration(char entite[]) {
+    for (int i = 0; i < 40; i++) {
+        if (tab[i].state == 1 && strcmp(tab[i].name, entite) == 0) {
+            return -1;  // L'entité est déjà dans la table des symboles
+        }
+    }
+} 
+   
 /*****  Vérifie si une variable est redéclarée */
 int nonDeclared(char entite[])
  { 

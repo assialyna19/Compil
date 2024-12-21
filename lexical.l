@@ -13,9 +13,10 @@
 %}
 
 TYPE (INTEGER|REAL)
-lettre [a-zA-Z]
-chiffre [0-9]
-IDF {lettre}({lettre}|{chiffre})*
+lettre          [a-z]
+lettreM         [A-Z]
+chiffre         [0-9]
+IDF  ({lettreM}|{lettre})({lettre}|{chiffre})*("_"({lettre}|{chiffre})+)*  
 INT [+-]?[0-9]+
 REAL {INT}\.{INT}
 BOOL TRUE|FALSE
@@ -28,12 +29,6 @@ COMMENTAIRE \/\/[^\n]*|\/\*([^*]|\*+[^*/])*\*+\/
 
 %%
 
-"CONST" {
-    rechercher(yytext, "Mot cle", "", 0, 1);
-    printf("Constante reconnue : %s\n", yytext);
-    col += strlen(yytext);
-    return MC_CONST;
-}
 
 "PROGRAMME"   {   
     rechercher(yytext, "Mot cle", "", 0, 1);
@@ -41,17 +36,36 @@ COMMENTAIRE \/\/[^\n]*|\/\*([^*]|\*+[^*/])*\*+\/
     col += strlen(yytext);
     return MC_PROGRAMME; }
 
-"END."      {   
+"VAR"       { 
     rechercher(yytext, "Mot cle", "", 0, 1);
-    printf("fin reconnue : %s\n", yytext);
+    printf("var reconnu : %s\n", yytext);
     col += strlen(yytext);
-    return MC_END ; }
+    return MC_VAR; }
 
 "BEGIN"     {   
     rechercher(yytext, "Mot cle", "", 0, 1);
     printf("début reconnu : %s\n", yytext);
     col += strlen(yytext);
     return MC_BEGIN; } 
+
+"END."      {   
+    rechercher(yytext, "Mot cle", "", 0, 1);
+    printf("fin reconnue : %s\n", yytext);
+    col += strlen(yytext);
+    return MC_END ; }
+
+"IF"        { 
+    rechercher(yytext, "Mot cle", "", 0, 1);
+    printf("if reconnu : %s\n", yytext);
+    col += strlen(yytext);
+    return MC_IF; }
+
+"ELSE"      { 
+    rechercher(yytext, "Mot cle", "", 0, 1);
+    printf("else reconnu : %s\n", yytext);
+    col += strlen(yytext);
+    return MC_ELSE; }
+
 
 "FOR"       {
     rechercher(yytext, "Mot cle", "", 0, 1);
@@ -77,11 +91,7 @@ COMMENTAIRE \/\/[^\n]*|\/\*([^*]|\*+[^*/])*\*+\/
     col += strlen(yytext);
     return MC_ENDDO; }
 
-"IF"        { 
-    rechercher(yytext, "Mot cle", "", 0, 1);
-    printf("if reconnu : %s\n", yytext);
-    col += strlen(yytext);
-    return MC_IF; }
+
 
 "ENDIF"     {
     rechercher(yytext, "Mot cle", "", 0, 1);
@@ -95,11 +105,6 @@ COMMENTAIRE \/\/[^\n]*|\/\*([^*]|\*+[^*/])*\*+\/
     col += strlen(yytext);
     return MC_THEN; }
 
-"ELSE"      { 
-    rechercher(yytext, "Mot cle", "", 0, 1);
-    printf("else reconnu : %s\n", yytext);
-    col += strlen(yytext);
-    return MC_ELSE; }
 
 "INTEGER"   {   
     rechercher(yytext, "Mot cle", "", 0, 1);
@@ -138,101 +143,18 @@ COMMENTAIRE \/\/[^\n]*|\/\*([^*]|\*+[^*/])*\*+\/
     col += strlen(yytext);
     return MC_writeln; }
 
-"VAR"       { 
+
+
+"CONST" {
     rechercher(yytext, "Mot cle", "", 0, 1);
-    printf("var reconnu : %s\n", yytext);
+    printf("Constante reconnue : %s\n", yytext);
     col += strlen(yytext);
-    return MC_VAR; }
-
-{IDF} {
-    if (strlen(yytext) <= 9) {
-        printf("IDF reconnu : %s\n", yytext);
-        yylval.str = strdup(yytext);
-        col += strlen(yytext);
-        return MC_IDF;
-    } else {
-        col += strlen(yytext);
-        printf("Erreur : Identificateur trop long à la ligne %d, colonne %d : %s\n", nb_ligne, col, yytext);
-    }
+    return MC_CONST;
 }
 
 
-{INT} {
-    int val = atoi(yytext);
-    if (val >= -32768 && val <= 32767) {
-        printf("CST entière reconnue : %s\n", yytext);
-        yylval.entier = val;
-        col += strlen(yytext);
-        return MC_ENTIER;
-    } else {
-        col += strlen(yytext);
-        printf("Erreur : Dépassement de capacité à la ligne %d, colonne %d : %s\n", nb_ligne, col, yytext);
-    }
-}
 
-{REAL} {
-    printf("CST réelle reconnue : %s\n", yytext);
-    yylval.reel = atof(yytext);
-    col += strlen(yytext);
-    return MC_REAL;
-}
-
-{cst_int} { 
-    printf("L'entité lexicale reconnue est %s\n", yytext); 
-    yylval.entier = atoi(yytext);
-    char val[20];
-    sprintf(val, "%f", atof(yytext));
-    rechercher(yytext, "CONSTANT", "INTEGER", val, 0);
-    col += strlen(yytext); 
-    return cst_int; }
-
-{cst_real} {    
-    printf("L'entité lexicale reconnue est %s\n", yytext); 
-    yylval.reel = atoi(yytext);
-    char val[20];
-    sprintf(val, "%f", atof(yytext));
-    rechercher(yytext, "CONSTANT", "FLOAT", val, 0);
-    col += strlen(yytext); 
-    return cst_real; }
-
-{cst_str} {    
-    printf("L'entité lexicale reconnue est %s\n", yytext); 
-    yylval.reel = atoi(yytext);
-    char val[20];
-    sprintf(val, "%f", atof(yytext));
-    rechercher(yytext, "CONSTANT", "STRING", val, 0);
-    col += strlen(yytext); 
-    return cst_str; }
-
-{COMMENTAIRE} {
-    printf("Commentaire ignoré\n");
-    for (int i = 0; i < strlen(yytext); i++) {
-        if (yytext[i] == '\n') {
-            nb_ligne++;
-            col = 1;
-        } else {
-            col++;
-        }
-    }
-}
-
-{caractere} {
-    printf("Caractère reconnu : %s\n", yytext);
-    col += strlen(yytext);
-    return MC_CARACTERE;
-}
-
-{chaine} {
-    if (strlen(yytext) <= 22) {
-        printf("Chaîne reconnue : %s\n", yytext);
-        yylval.str = strdup(yytext);
-        col += strlen(yytext);
-        return MC_CHAINE;
-    } else {
-        printf("Erreur : Chaîne trop longue à la ligne %d, colonne %d : %s\n", nb_ligne, col, yytext);
-    }
-}
-
+    
 "&&" { 
     printf("Opérateur ET logique reconnu\n"); 
     col += strlen(yytext); 
@@ -283,6 +205,8 @@ COMMENTAIRE \/\/[^\n]*|\/\*([^*]|\*+[^*/])*\*+\/
     printf("Virgule reconnue\n"); 
     col += strlen(yytext); 
     return vg; }
+
+
 
 ";"  { 
     rechercher(yytext,"Mot cle",0,0,2); 
@@ -356,6 +280,104 @@ COMMENTAIRE \/\/[^\n]*|\/\*([^*]|\*+[^*/])*\*+\/
     col += strlen(yytext); 
     return acoferm; }
 
+"["  { 
+    rechercher(yytext,"Mot cle",0,0,2); 
+    printf("crochet ouvrant reconnue\n"); 
+    col += strlen(yytext); 
+    return crou; }
+
+"]"  { 
+    rechercher(yytext,"Mot cle",0,0,2); 
+    printf("crochet fermant reconnue\n"); 
+    col += strlen(yytext); 
+    return crof; }
+
+{IDF}     { 
+	 yylval.str = strdup(yytext);
+              col = col + strlen(yytext);
+			  if (yyleng>7) printf ("Erreur Lexical: IDF trop long a la ligne %d a la colonne %d \n ",nb_ligne, col);
+              printf ("L'entite reconnue est %s \n", yytext); 
+			  return MC_IDF;
+}
+
+
+{INT} {
+    int val = atoi(yytext);
+    if (val >= -32768 && val <= 32767) {
+        printf("CST entière reconnue : %s\n", yytext);
+        yylval.entier = val;
+        col += strlen(yytext);
+        return Int;
+    } else {
+        col += strlen(yytext);
+        printf("Erreur : Dépassement de capacité à la ligne %d, colonne %d : %s\n", nb_ligne, col, yytext);
+    }
+}
+
+{REAL} {
+    printf("CST réelle reconnue : %s\n", yytext);
+    yylval.reel = atof(yytext);
+    col += strlen(yytext);
+    return MC_REAL;
+}
+
+{cst_int} { 
+    printf("L'entité lexicale reconnue est %s\n", yytext); 
+    yylval.entier = atoi(yytext);
+    char val[20];
+    sprintf(val, "%f", atof(yytext));
+    rechercher(yytext, "CONSTANT", "INTEGER", val, 0);
+    col += strlen(yytext); 
+    return cst_int; }
+
+{cst_real} {    
+    printf("L'entité lexicale reconnue est %s\n", yytext); 
+    yylval.reel = atoi(yytext);
+    char val[20];
+    sprintf(val, "%f", atof(yytext));
+    rechercher(yytext, "CONSTANT", "FLOAT", val, 0);
+    col += strlen(yytext); 
+    return cst_real; }
+
+{cst_str} {    
+    printf("L'entité lexicale reconnue est %s\n", yytext); 
+    yylval.reel = atoi(yytext);
+    char val[20];
+    sprintf(val, "%f", atof(yytext));
+    rechercher(yytext, "CONSTANT", "STRING", val, 0);
+    col += strlen(yytext); 
+    return cst_str; }
+
+{COMMENTAIRE} {
+    printf("Commentaire ignoré\n");
+    for (int i = 0; i < strlen(yytext); i++) {
+        if (yytext[i] == '\n') {
+            nb_ligne++;
+            col = 1;
+        } else {
+            col++;
+        }
+    }
+}
+
+{caractere} {
+    printf("Caractère reconnu : %s\n", yytext);
+    col += strlen(yytext);
+    return MC_CARACTERE;
+}
+
+{chaine} {
+    if (strlen(yytext) <= 22) {
+        printf("Chaîne reconnue : %s\n", yytext);
+        yylval.str = strdup(yytext);
+        col += strlen(yytext);
+        return MC_CHAINE;
+    } else {
+        printf("Erreur : Chaîne trop longue à la ligne %d, colonne %d : %s\n", nb_ligne, col, yytext);
+    }
+}
+
+
 [ \t]+ { col += strlen(yytext); }
 
 \n { nb_ligne++; col = 1; }
@@ -364,3 +386,4 @@ COMMENTAIRE \/\/[^\n]*|\/\*([^*]|\*+[^*/])*\*+\/
     printf("Erreur lexicale : Ligne %d, Colonne %d, Caractère inconnu : %s\n", nb_ligne, col, yytext);
     return ERREUR_LEXICAL;
 }
+%%
