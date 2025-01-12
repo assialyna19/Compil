@@ -1,0 +1,2353 @@
+Terminals unused in grammar
+
+   err
+
+
+Grammaire
+
+    0 $accept: s $end
+
+    1 s: FCTS PRGM_PRIN
+
+    2 PRGM_PRIN: mc_prgrm idf DECS INSTS mc_end
+
+    3 FCTS: VIDE
+    4     | ENSFCT
+
+    5 VIDE: /* vide */
+
+    6 ENSFCT: ENSFCT FCT
+    7       | FCT
+
+    8 FCT: debut_fct ENSINST assignment mc_endr
+    9    | debut_fct assignment mc_endr
+
+   10 debut_fct: TYPE mc_rtin idf po IDFS pf DECS
+
+   11 TYPE: mc_int
+   12     | mc_real
+   13     | mc_char
+   14     | mc_logi
+
+   15 DECS: VIDE
+   16     | ENSDEC
+
+   17 ENSDEC: ENSDEC DEC
+   18       | DEC
+
+   19 DEC: TYPE ENSIDF_dec pvg
+   20    | TYPE idf mul inti pvg
+   21    | TYPE idf mc_dim po TAILLE pf pvg
+
+   22 partie_gauch_affectation: aff valeur
+   23                         | VIDE
+
+   24 ENSIDF_dec: ENSIDF_dec verg idf partie_gauch_affectation
+   25           | idf partie_gauch_affectation
+
+   26 EXPRE: EXPRE mc_or CONDIT
+   27      | EXPRE mc_and CONDIT
+   28      | CONDIT
+
+   29 CONDIT: CONDIT lt EXPREt
+   30       | CONDIT gt EXPREt
+   31       | CONDIT ge EXPREt
+   32       | CONDIT eq EXPREt
+   33       | CONDIT ne EXPREt
+   34       | CONDIT le EXPREt
+   35       | EXPREt
+
+   36 EXPREt: EXPREt add TERM
+   37       | EXPREt sub TERM
+   38       | TERM
+
+   39 TERM: TERM mul FACTOR
+   40     | TERM divi FACTOR
+   41     | FACTOR
+
+   42 FACTOR: po EXPRE pf
+   43       | OPERAND
+
+   44 OPERAND: idf
+   45        | LOGI
+   46        | inti
+   47        | real
+   48        | idf po TAILLE pf
+   49        | mc_call idf po ENSpara pf
+   50        | mc_call idf po pf
+
+   51 ENSpara: ENSpara verg valeur
+   52        | valeur
+
+   53 TAILLE: TAILLE verg valeur
+   54       | valeur
+
+   55 LOGI: mc_true
+   56     | mc_false
+
+   57 IDFS: ENSIDF
+   58     | VIDE
+
+   59 ENSIDF: ENSIDF verg idf
+   60       | idf
+
+   61 INSTS: VIDE
+   62      | ENSINST
+
+   63 ENSINST: ENSINST INST
+   64        | INST
+
+   65 INST: if_statement
+   66     | read_statement
+   67     | write_statement
+   68     | dowhile_statement
+   69     | assignment
+   70     | eqival_statement
+
+   71 eqival_statement: mc_equival ens_list_vars pvg
+
+   72 ens_list_vars: ens_list_var
+   73              | VIDE
+
+   74 ens_list_var: ens_list_var verg po list_var pf
+   75             | po list_var pf
+
+   76 list_var: list_var verg var
+   77         | var
+
+   78 var: idf
+   79    | idf po TAILLE pf
+
+   80 if_statement: B_if else_clause mc_endif
+
+   81 B_if: A_if mc_then ENSINST
+
+   82 A_if: mc_if po CONDI pf
+
+   83 else_clause: mc_else ENSINST
+   84            | VIDE
+
+   85 assignment: var aff valeur pvg
+
+   86 valeur: str
+   87       | EXPRE
+
+   88 read_statement: mc_read po var pf pvg
+
+   89 write_statement: mc_write po ENS_PARA_WRITE pf pvg
+
+   90 ENS_PARA_WRITE: ENS_PARA_WRITE verg str
+   91               | ENS_PARA_WRITE verg var
+   92               | str
+   93               | var
+
+   94 dowhile_statement: B_while ENSINST mc_enddo
+
+   95 B_while: A_while po CONDI pf
+
+   96 A_while: mc_dowhile
+
+   97 CONDI: EXPRE
+
+
+Terminaux, suivis des règles où ils apparaissent
+
+$end (0) 0
+error (256)
+idf (258) 2 10 20 21 24 25 44 48 49 50 59 60 78 79
+aff (259) 22 85
+mc_prgrm (260) 2
+mc_rtin (261) 10
+inti (262) 20 46
+real (263) 47
+mc_endr (264) 8 9
+mc_call (265) 49 50
+mc_dim (266) 21
+mc_logi (267) 14
+mc_char (268) 13
+mc_true (269) 55
+mc_false (270) 56
+mc_read (271) 88
+mc_write (272) 89
+pvg (273) 19 20 21 71 85 88 89
+str (274) 86 90 92
+mc_int (275) 11
+mc_real (276) 12
+mc_end (277) 2
+mc_if (278) 82
+mc_then (279) 81
+mc_else (280) 83
+mc_dowhile (281) 96
+mc_enddo (282) 94
+mc_equival (283) 71
+mc_or (284) 26
+ge (285) 31
+eq (286) 32
+ne (287) 33
+le (288) 34
+add (289) 36
+sub (290) 37
+mul (291) 20 39
+divi (292) 40
+mc_and (293) 27
+mc_endif (294) 80
+lt (295) 29
+gt (296) 30
+po (297) 10 21 42 48 49 50 74 75 79 82 88 89 95
+pf (298) 10 21 42 48 49 50 74 75 79 82 88 89 95
+verg (299) 24 51 53 59 74 76 90 91
+err (300)
+
+
+Non-terminaux, suivis des règles où ils apparaissent
+
+$accept (46)
+    à gauche: 0
+s (47)
+    à gauche: 1, à droite: 0
+PRGM_PRIN (48)
+    à gauche: 2, à droite: 1
+FCTS (49)
+    à gauche: 3 4, à droite: 1
+VIDE (50)
+    à gauche: 5, à droite: 3 15 23 58 61 73 84
+ENSFCT (51)
+    à gauche: 6 7, à droite: 4 6
+FCT (52)
+    à gauche: 8 9, à droite: 6 7
+debut_fct (53)
+    à gauche: 10, à droite: 8 9
+TYPE (54)
+    à gauche: 11 12 13 14, à droite: 10 19 20 21
+DECS (55)
+    à gauche: 15 16, à droite: 2 10
+ENSDEC (56)
+    à gauche: 17 18, à droite: 16 17
+DEC (57)
+    à gauche: 19 20 21, à droite: 17 18
+partie_gauch_affectation (58)
+    à gauche: 22 23, à droite: 24 25
+ENSIDF_dec (59)
+    à gauche: 24 25, à droite: 19 24
+EXPRE (60)
+    à gauche: 26 27 28, à droite: 26 27 42 87 97
+CONDIT (61)
+    à gauche: 29 30 31 32 33 34 35, à droite: 26 27 28 29 30 31 32
+    33 34
+EXPREt (62)
+    à gauche: 36 37 38, à droite: 29 30 31 32 33 34 35 36 37
+TERM (63)
+    à gauche: 39 40 41, à droite: 36 37 38 39 40
+FACTOR (64)
+    à gauche: 42 43, à droite: 39 40 41
+OPERAND (65)
+    à gauche: 44 45 46 47 48 49 50, à droite: 43
+ENSpara (66)
+    à gauche: 51 52, à droite: 49 51
+TAILLE (67)
+    à gauche: 53 54, à droite: 21 48 53 79
+LOGI (68)
+    à gauche: 55 56, à droite: 45
+IDFS (69)
+    à gauche: 57 58, à droite: 10
+ENSIDF (70)
+    à gauche: 59 60, à droite: 57 59
+INSTS (71)
+    à gauche: 61 62, à droite: 2
+ENSINST (72)
+    à gauche: 63 64, à droite: 8 62 63 81 83 94
+INST (73)
+    à gauche: 65 66 67 68 69 70, à droite: 63 64
+eqival_statement (74)
+    à gauche: 71, à droite: 70
+ens_list_vars (75)
+    à gauche: 72 73, à droite: 71
+ens_list_var (76)
+    à gauche: 74 75, à droite: 72 74
+list_var (77)
+    à gauche: 76 77, à droite: 74 75 76
+var (78)
+    à gauche: 78 79, à droite: 76 77 85 88 91 93
+if_statement (79)
+    à gauche: 80, à droite: 65
+B_if (80)
+    à gauche: 81, à droite: 80
+A_if (81)
+    à gauche: 82, à droite: 81
+else_clause (82)
+    à gauche: 83 84, à droite: 80
+assignment (83)
+    à gauche: 85, à droite: 8 9 69
+valeur (84)
+    à gauche: 86 87, à droite: 22 51 52 53 54 85
+read_statement (85)
+    à gauche: 88, à droite: 66
+write_statement (86)
+    à gauche: 89, à droite: 67
+ENS_PARA_WRITE (87)
+    à gauche: 90 91 92 93, à droite: 89 90 91
+dowhile_statement (88)
+    à gauche: 94, à droite: 68
+B_while (89)
+    à gauche: 95, à droite: 94
+A_while (90)
+    à gauche: 96, à droite: 95
+CONDI (91)
+    à gauche: 97, à droite: 82 95
+
+
+état 0
+
+    0 $accept: . s $end
+
+    mc_logi  décalage et aller à l'état 1
+    mc_char  décalage et aller à l'état 2
+    mc_int   décalage et aller à l'état 3
+    mc_real  décalage et aller à l'état 4
+
+    $défaut  réduction par utilisation de la règle 5 (VIDE)
+
+    s          aller à l'état 5
+    FCTS       aller à l'état 6
+    VIDE       aller à l'état 7
+    ENSFCT     aller à l'état 8
+    FCT        aller à l'état 9
+    debut_fct  aller à l'état 10
+    TYPE       aller à l'état 11
+
+
+état 1
+
+   14 TYPE: mc_logi .
+
+    $défaut  réduction par utilisation de la règle 14 (TYPE)
+
+
+état 2
+
+   13 TYPE: mc_char .
+
+    $défaut  réduction par utilisation de la règle 13 (TYPE)
+
+
+état 3
+
+   11 TYPE: mc_int .
+
+    $défaut  réduction par utilisation de la règle 11 (TYPE)
+
+
+état 4
+
+   12 TYPE: mc_real .
+
+    $défaut  réduction par utilisation de la règle 12 (TYPE)
+
+
+état 5
+
+    0 $accept: s . $end
+
+    $end  décalage et aller à l'état 12
+
+
+état 6
+
+    1 s: FCTS . PRGM_PRIN
+
+    mc_prgrm  décalage et aller à l'état 13
+
+    PRGM_PRIN  aller à l'état 14
+
+
+état 7
+
+    3 FCTS: VIDE .
+
+    $défaut  réduction par utilisation de la règle 3 (FCTS)
+
+
+état 8
+
+    4 FCTS: ENSFCT .
+    6 ENSFCT: ENSFCT . FCT
+
+    mc_logi  décalage et aller à l'état 1
+    mc_char  décalage et aller à l'état 2
+    mc_int   décalage et aller à l'état 3
+    mc_real  décalage et aller à l'état 4
+
+    $défaut  réduction par utilisation de la règle 4 (FCTS)
+
+    FCT        aller à l'état 15
+    debut_fct  aller à l'état 10
+    TYPE       aller à l'état 11
+
+
+état 9
+
+    7 ENSFCT: FCT .
+
+    $défaut  réduction par utilisation de la règle 7 (ENSFCT)
+
+
+état 10
+
+    8 FCT: debut_fct . ENSINST assignment mc_endr
+    9    | debut_fct . assignment mc_endr
+
+    idf         décalage et aller à l'état 16
+    mc_read     décalage et aller à l'état 17
+    mc_write    décalage et aller à l'état 18
+    mc_if       décalage et aller à l'état 19
+    mc_dowhile  décalage et aller à l'état 20
+    mc_equival  décalage et aller à l'état 21
+
+    ENSINST            aller à l'état 22
+    INST               aller à l'état 23
+    eqival_statement   aller à l'état 24
+    var                aller à l'état 25
+    if_statement       aller à l'état 26
+    B_if               aller à l'état 27
+    A_if               aller à l'état 28
+    assignment         aller à l'état 29
+    read_statement     aller à l'état 30
+    write_statement    aller à l'état 31
+    dowhile_statement  aller à l'état 32
+    B_while            aller à l'état 33
+    A_while            aller à l'état 34
+
+
+état 11
+
+   10 debut_fct: TYPE . mc_rtin idf po IDFS pf DECS
+
+    mc_rtin  décalage et aller à l'état 35
+
+
+état 12
+
+    0 $accept: s $end .
+
+    $défaut  accepter
+
+
+état 13
+
+    2 PRGM_PRIN: mc_prgrm . idf DECS INSTS mc_end
+
+    idf  décalage et aller à l'état 36
+
+
+état 14
+
+    1 s: FCTS PRGM_PRIN .
+
+    $défaut  réduction par utilisation de la règle 1 (s)
+
+
+état 15
+
+    6 ENSFCT: ENSFCT FCT .
+
+    $défaut  réduction par utilisation de la règle 6 (ENSFCT)
+
+
+état 16
+
+   78 var: idf .
+   79    | idf . po TAILLE pf
+
+    po  décalage et aller à l'état 37
+
+    $défaut  réduction par utilisation de la règle 78 (var)
+
+
+état 17
+
+   88 read_statement: mc_read . po var pf pvg
+
+    po  décalage et aller à l'état 38
+
+
+état 18
+
+   89 write_statement: mc_write . po ENS_PARA_WRITE pf pvg
+
+    po  décalage et aller à l'état 39
+
+
+état 19
+
+   82 A_if: mc_if . po CONDI pf
+
+    po  décalage et aller à l'état 40
+
+
+état 20
+
+   96 A_while: mc_dowhile .
+
+    $défaut  réduction par utilisation de la règle 96 (A_while)
+
+
+état 21
+
+   71 eqival_statement: mc_equival . ens_list_vars pvg
+
+    po  décalage et aller à l'état 41
+
+    $défaut  réduction par utilisation de la règle 5 (VIDE)
+
+    VIDE           aller à l'état 42
+    ens_list_vars  aller à l'état 43
+    ens_list_var   aller à l'état 44
+
+
+état 22
+
+    8 FCT: debut_fct ENSINST . assignment mc_endr
+   63 ENSINST: ENSINST . INST
+
+    idf         décalage et aller à l'état 16
+    mc_read     décalage et aller à l'état 17
+    mc_write    décalage et aller à l'état 18
+    mc_if       décalage et aller à l'état 19
+    mc_dowhile  décalage et aller à l'état 20
+    mc_equival  décalage et aller à l'état 21
+
+    INST               aller à l'état 45
+    eqival_statement   aller à l'état 24
+    var                aller à l'état 25
+    if_statement       aller à l'état 26
+    B_if               aller à l'état 27
+    A_if               aller à l'état 28
+    assignment         aller à l'état 46
+    read_statement     aller à l'état 30
+    write_statement    aller à l'état 31
+    dowhile_statement  aller à l'état 32
+    B_while            aller à l'état 33
+    A_while            aller à l'état 34
+
+
+état 23
+
+   64 ENSINST: INST .
+
+    $défaut  réduction par utilisation de la règle 64 (ENSINST)
+
+
+état 24
+
+   70 INST: eqival_statement .
+
+    $défaut  réduction par utilisation de la règle 70 (INST)
+
+
+état 25
+
+   85 assignment: var . aff valeur pvg
+
+    aff  décalage et aller à l'état 47
+
+
+état 26
+
+   65 INST: if_statement .
+
+    $défaut  réduction par utilisation de la règle 65 (INST)
+
+
+état 27
+
+   80 if_statement: B_if . else_clause mc_endif
+
+    mc_else  décalage et aller à l'état 48
+
+    $défaut  réduction par utilisation de la règle 5 (VIDE)
+
+    VIDE         aller à l'état 49
+    else_clause  aller à l'état 50
+
+
+état 28
+
+   81 B_if: A_if . mc_then ENSINST
+
+    mc_then  décalage et aller à l'état 51
+
+
+état 29
+
+    9 FCT: debut_fct assignment . mc_endr
+   69 INST: assignment .
+
+    mc_endr  décalage et aller à l'état 52
+
+    $défaut  réduction par utilisation de la règle 69 (INST)
+
+
+état 30
+
+   66 INST: read_statement .
+
+    $défaut  réduction par utilisation de la règle 66 (INST)
+
+
+état 31
+
+   67 INST: write_statement .
+
+    $défaut  réduction par utilisation de la règle 67 (INST)
+
+
+état 32
+
+   68 INST: dowhile_statement .
+
+    $défaut  réduction par utilisation de la règle 68 (INST)
+
+
+état 33
+
+   94 dowhile_statement: B_while . ENSINST mc_enddo
+
+    idf         décalage et aller à l'état 16
+    mc_read     décalage et aller à l'état 17
+    mc_write    décalage et aller à l'état 18
+    mc_if       décalage et aller à l'état 19
+    mc_dowhile  décalage et aller à l'état 20
+    mc_equival  décalage et aller à l'état 21
+
+    ENSINST            aller à l'état 53
+    INST               aller à l'état 23
+    eqival_statement   aller à l'état 24
+    var                aller à l'état 25
+    if_statement       aller à l'état 26
+    B_if               aller à l'état 27
+    A_if               aller à l'état 28
+    assignment         aller à l'état 54
+    read_statement     aller à l'état 30
+    write_statement    aller à l'état 31
+    dowhile_statement  aller à l'état 32
+    B_while            aller à l'état 33
+    A_while            aller à l'état 34
+
+
+état 34
+
+   95 B_while: A_while . po CONDI pf
+
+    po  décalage et aller à l'état 55
+
+
+état 35
+
+   10 debut_fct: TYPE mc_rtin . idf po IDFS pf DECS
+
+    idf  décalage et aller à l'état 56
+
+
+état 36
+
+    2 PRGM_PRIN: mc_prgrm idf . DECS INSTS mc_end
+
+    mc_logi  décalage et aller à l'état 1
+    mc_char  décalage et aller à l'état 2
+    mc_int   décalage et aller à l'état 3
+    mc_real  décalage et aller à l'état 4
+
+    $défaut  réduction par utilisation de la règle 5 (VIDE)
+
+    VIDE    aller à l'état 57
+    TYPE    aller à l'état 58
+    DECS    aller à l'état 59
+    ENSDEC  aller à l'état 60
+    DEC     aller à l'état 61
+
+
+état 37
+
+   79 var: idf po . TAILLE pf
+
+    idf       décalage et aller à l'état 62
+    inti      décalage et aller à l'état 63
+    real      décalage et aller à l'état 64
+    mc_call   décalage et aller à l'état 65
+    mc_true   décalage et aller à l'état 66
+    mc_false  décalage et aller à l'état 67
+    str       décalage et aller à l'état 68
+    po        décalage et aller à l'état 69
+
+    EXPRE    aller à l'état 70
+    CONDIT   aller à l'état 71
+    EXPREt   aller à l'état 72
+    TERM     aller à l'état 73
+    FACTOR   aller à l'état 74
+    OPERAND  aller à l'état 75
+    TAILLE   aller à l'état 76
+    LOGI     aller à l'état 77
+    valeur   aller à l'état 78
+
+
+état 38
+
+   88 read_statement: mc_read po . var pf pvg
+
+    idf  décalage et aller à l'état 16
+
+    var  aller à l'état 79
+
+
+état 39
+
+   89 write_statement: mc_write po . ENS_PARA_WRITE pf pvg
+
+    idf  décalage et aller à l'état 16
+    str  décalage et aller à l'état 80
+
+    var             aller à l'état 81
+    ENS_PARA_WRITE  aller à l'état 82
+
+
+état 40
+
+   82 A_if: mc_if po . CONDI pf
+
+    idf       décalage et aller à l'état 62
+    inti      décalage et aller à l'état 63
+    real      décalage et aller à l'état 64
+    mc_call   décalage et aller à l'état 65
+    mc_true   décalage et aller à l'état 66
+    mc_false  décalage et aller à l'état 67
+    po        décalage et aller à l'état 69
+
+    EXPRE    aller à l'état 83
+    CONDIT   aller à l'état 71
+    EXPREt   aller à l'état 72
+    TERM     aller à l'état 73
+    FACTOR   aller à l'état 74
+    OPERAND  aller à l'état 75
+    LOGI     aller à l'état 77
+    CONDI    aller à l'état 84
+
+
+état 41
+
+   75 ens_list_var: po . list_var pf
+
+    idf  décalage et aller à l'état 16
+
+    list_var  aller à l'état 85
+    var       aller à l'état 86
+
+
+état 42
+
+   73 ens_list_vars: VIDE .
+
+    $défaut  réduction par utilisation de la règle 73 (ens_list_vars)
+
+
+état 43
+
+   71 eqival_statement: mc_equival ens_list_vars . pvg
+
+    pvg  décalage et aller à l'état 87
+
+
+état 44
+
+   72 ens_list_vars: ens_list_var .
+   74 ens_list_var: ens_list_var . verg po list_var pf
+
+    verg  décalage et aller à l'état 88
+
+    $défaut  réduction par utilisation de la règle 72 (ens_list_vars)
+
+
+état 45
+
+   63 ENSINST: ENSINST INST .
+
+    $défaut  réduction par utilisation de la règle 63 (ENSINST)
+
+
+état 46
+
+    8 FCT: debut_fct ENSINST assignment . mc_endr
+   69 INST: assignment .
+
+    mc_endr  décalage et aller à l'état 89
+
+    $défaut  réduction par utilisation de la règle 69 (INST)
+
+
+état 47
+
+   85 assignment: var aff . valeur pvg
+
+    idf       décalage et aller à l'état 62
+    inti      décalage et aller à l'état 63
+    real      décalage et aller à l'état 64
+    mc_call   décalage et aller à l'état 65
+    mc_true   décalage et aller à l'état 66
+    mc_false  décalage et aller à l'état 67
+    str       décalage et aller à l'état 68
+    po        décalage et aller à l'état 69
+
+    EXPRE    aller à l'état 70
+    CONDIT   aller à l'état 71
+    EXPREt   aller à l'état 72
+    TERM     aller à l'état 73
+    FACTOR   aller à l'état 74
+    OPERAND  aller à l'état 75
+    LOGI     aller à l'état 77
+    valeur   aller à l'état 90
+
+
+état 48
+
+   83 else_clause: mc_else . ENSINST
+
+    idf         décalage et aller à l'état 16
+    mc_read     décalage et aller à l'état 17
+    mc_write    décalage et aller à l'état 18
+    mc_if       décalage et aller à l'état 19
+    mc_dowhile  décalage et aller à l'état 20
+    mc_equival  décalage et aller à l'état 21
+
+    ENSINST            aller à l'état 91
+    INST               aller à l'état 23
+    eqival_statement   aller à l'état 24
+    var                aller à l'état 25
+    if_statement       aller à l'état 26
+    B_if               aller à l'état 27
+    A_if               aller à l'état 28
+    assignment         aller à l'état 54
+    read_statement     aller à l'état 30
+    write_statement    aller à l'état 31
+    dowhile_statement  aller à l'état 32
+    B_while            aller à l'état 33
+    A_while            aller à l'état 34
+
+
+état 49
+
+   84 else_clause: VIDE .
+
+    $défaut  réduction par utilisation de la règle 84 (else_clause)
+
+
+état 50
+
+   80 if_statement: B_if else_clause . mc_endif
+
+    mc_endif  décalage et aller à l'état 92
+
+
+état 51
+
+   81 B_if: A_if mc_then . ENSINST
+
+    idf         décalage et aller à l'état 16
+    mc_read     décalage et aller à l'état 17
+    mc_write    décalage et aller à l'état 18
+    mc_if       décalage et aller à l'état 19
+    mc_dowhile  décalage et aller à l'état 20
+    mc_equival  décalage et aller à l'état 21
+
+    ENSINST            aller à l'état 93
+    INST               aller à l'état 23
+    eqival_statement   aller à l'état 24
+    var                aller à l'état 25
+    if_statement       aller à l'état 26
+    B_if               aller à l'état 27
+    A_if               aller à l'état 28
+    assignment         aller à l'état 54
+    read_statement     aller à l'état 30
+    write_statement    aller à l'état 31
+    dowhile_statement  aller à l'état 32
+    B_while            aller à l'état 33
+    A_while            aller à l'état 34
+
+
+état 52
+
+    9 FCT: debut_fct assignment mc_endr .
+
+    $défaut  réduction par utilisation de la règle 9 (FCT)
+
+
+état 53
+
+   63 ENSINST: ENSINST . INST
+   94 dowhile_statement: B_while ENSINST . mc_enddo
+
+    idf         décalage et aller à l'état 16
+    mc_read     décalage et aller à l'état 17
+    mc_write    décalage et aller à l'état 18
+    mc_if       décalage et aller à l'état 19
+    mc_dowhile  décalage et aller à l'état 20
+    mc_enddo    décalage et aller à l'état 94
+    mc_equival  décalage et aller à l'état 21
+
+    INST               aller à l'état 45
+    eqival_statement   aller à l'état 24
+    var                aller à l'état 25
+    if_statement       aller à l'état 26
+    B_if               aller à l'état 27
+    A_if               aller à l'état 28
+    assignment         aller à l'état 54
+    read_statement     aller à l'état 30
+    write_statement    aller à l'état 31
+    dowhile_statement  aller à l'état 32
+    B_while            aller à l'état 33
+    A_while            aller à l'état 34
+
+
+état 54
+
+   69 INST: assignment .
+
+    $défaut  réduction par utilisation de la règle 69 (INST)
+
+
+état 55
+
+   95 B_while: A_while po . CONDI pf
+
+    idf       décalage et aller à l'état 62
+    inti      décalage et aller à l'état 63
+    real      décalage et aller à l'état 64
+    mc_call   décalage et aller à l'état 65
+    mc_true   décalage et aller à l'état 66
+    mc_false  décalage et aller à l'état 67
+    po        décalage et aller à l'état 69
+
+    EXPRE    aller à l'état 83
+    CONDIT   aller à l'état 71
+    EXPREt   aller à l'état 72
+    TERM     aller à l'état 73
+    FACTOR   aller à l'état 74
+    OPERAND  aller à l'état 75
+    LOGI     aller à l'état 77
+    CONDI    aller à l'état 95
+
+
+état 56
+
+   10 debut_fct: TYPE mc_rtin idf . po IDFS pf DECS
+
+    po  décalage et aller à l'état 96
+
+
+état 57
+
+   15 DECS: VIDE .
+
+    $défaut  réduction par utilisation de la règle 15 (DECS)
+
+
+état 58
+
+   19 DEC: TYPE . ENSIDF_dec pvg
+   20    | TYPE . idf mul inti pvg
+   21    | TYPE . idf mc_dim po TAILLE pf pvg
+
+    idf  décalage et aller à l'état 97
+
+    ENSIDF_dec  aller à l'état 98
+
+
+état 59
+
+    2 PRGM_PRIN: mc_prgrm idf DECS . INSTS mc_end
+
+    idf         décalage et aller à l'état 16
+    mc_read     décalage et aller à l'état 17
+    mc_write    décalage et aller à l'état 18
+    mc_if       décalage et aller à l'état 19
+    mc_dowhile  décalage et aller à l'état 20
+    mc_equival  décalage et aller à l'état 21
+
+    $défaut  réduction par utilisation de la règle 5 (VIDE)
+
+    VIDE               aller à l'état 99
+    INSTS              aller à l'état 100
+    ENSINST            aller à l'état 101
+    INST               aller à l'état 23
+    eqival_statement   aller à l'état 24
+    var                aller à l'état 25
+    if_statement       aller à l'état 26
+    B_if               aller à l'état 27
+    A_if               aller à l'état 28
+    assignment         aller à l'état 54
+    read_statement     aller à l'état 30
+    write_statement    aller à l'état 31
+    dowhile_statement  aller à l'état 32
+    B_while            aller à l'état 33
+    A_while            aller à l'état 34
+
+
+état 60
+
+   16 DECS: ENSDEC .
+   17 ENSDEC: ENSDEC . DEC
+
+    mc_logi  décalage et aller à l'état 1
+    mc_char  décalage et aller à l'état 2
+    mc_int   décalage et aller à l'état 3
+    mc_real  décalage et aller à l'état 4
+
+    $défaut  réduction par utilisation de la règle 16 (DECS)
+
+    TYPE  aller à l'état 58
+    DEC   aller à l'état 102
+
+
+état 61
+
+   18 ENSDEC: DEC .
+
+    $défaut  réduction par utilisation de la règle 18 (ENSDEC)
+
+
+état 62
+
+   44 OPERAND: idf .
+   48        | idf . po TAILLE pf
+
+    po  décalage et aller à l'état 103
+
+    $défaut  réduction par utilisation de la règle 44 (OPERAND)
+
+
+état 63
+
+   46 OPERAND: inti .
+
+    $défaut  réduction par utilisation de la règle 46 (OPERAND)
+
+
+état 64
+
+   47 OPERAND: real .
+
+    $défaut  réduction par utilisation de la règle 47 (OPERAND)
+
+
+état 65
+
+   49 OPERAND: mc_call . idf po ENSpara pf
+   50        | mc_call . idf po pf
+
+    idf  décalage et aller à l'état 104
+
+
+état 66
+
+   55 LOGI: mc_true .
+
+    $défaut  réduction par utilisation de la règle 55 (LOGI)
+
+
+état 67
+
+   56 LOGI: mc_false .
+
+    $défaut  réduction par utilisation de la règle 56 (LOGI)
+
+
+état 68
+
+   86 valeur: str .
+
+    $défaut  réduction par utilisation de la règle 86 (valeur)
+
+
+état 69
+
+   42 FACTOR: po . EXPRE pf
+
+    idf       décalage et aller à l'état 62
+    inti      décalage et aller à l'état 63
+    real      décalage et aller à l'état 64
+    mc_call   décalage et aller à l'état 65
+    mc_true   décalage et aller à l'état 66
+    mc_false  décalage et aller à l'état 67
+    po        décalage et aller à l'état 69
+
+    EXPRE    aller à l'état 105
+    CONDIT   aller à l'état 71
+    EXPREt   aller à l'état 72
+    TERM     aller à l'état 73
+    FACTOR   aller à l'état 74
+    OPERAND  aller à l'état 75
+    LOGI     aller à l'état 77
+
+
+état 70
+
+   26 EXPRE: EXPRE . mc_or CONDIT
+   27      | EXPRE . mc_and CONDIT
+   87 valeur: EXPRE .
+
+    mc_or   décalage et aller à l'état 106
+    mc_and  décalage et aller à l'état 107
+
+    $défaut  réduction par utilisation de la règle 87 (valeur)
+
+
+état 71
+
+   28 EXPRE: CONDIT .
+   29 CONDIT: CONDIT . lt EXPREt
+   30       | CONDIT . gt EXPREt
+   31       | CONDIT . ge EXPREt
+   32       | CONDIT . eq EXPREt
+   33       | CONDIT . ne EXPREt
+   34       | CONDIT . le EXPREt
+
+    ge  décalage et aller à l'état 108
+    eq  décalage et aller à l'état 109
+    ne  décalage et aller à l'état 110
+    le  décalage et aller à l'état 111
+    lt  décalage et aller à l'état 112
+    gt  décalage et aller à l'état 113
+
+    $défaut  réduction par utilisation de la règle 28 (EXPRE)
+
+
+état 72
+
+   35 CONDIT: EXPREt .
+   36 EXPREt: EXPREt . add TERM
+   37       | EXPREt . sub TERM
+
+    add  décalage et aller à l'état 114
+    sub  décalage et aller à l'état 115
+
+    $défaut  réduction par utilisation de la règle 35 (CONDIT)
+
+
+état 73
+
+   38 EXPREt: TERM .
+   39 TERM: TERM . mul FACTOR
+   40     | TERM . divi FACTOR
+
+    mul   décalage et aller à l'état 116
+    divi  décalage et aller à l'état 117
+
+    $défaut  réduction par utilisation de la règle 38 (EXPREt)
+
+
+état 74
+
+   41 TERM: FACTOR .
+
+    $défaut  réduction par utilisation de la règle 41 (TERM)
+
+
+état 75
+
+   43 FACTOR: OPERAND .
+
+    $défaut  réduction par utilisation de la règle 43 (FACTOR)
+
+
+état 76
+
+   53 TAILLE: TAILLE . verg valeur
+   79 var: idf po TAILLE . pf
+
+    pf    décalage et aller à l'état 118
+    verg  décalage et aller à l'état 119
+
+
+état 77
+
+   45 OPERAND: LOGI .
+
+    $défaut  réduction par utilisation de la règle 45 (OPERAND)
+
+
+état 78
+
+   54 TAILLE: valeur .
+
+    $défaut  réduction par utilisation de la règle 54 (TAILLE)
+
+
+état 79
+
+   88 read_statement: mc_read po var . pf pvg
+
+    pf  décalage et aller à l'état 120
+
+
+état 80
+
+   92 ENS_PARA_WRITE: str .
+
+    $défaut  réduction par utilisation de la règle 92 (ENS_PARA_WRITE)
+
+
+état 81
+
+   93 ENS_PARA_WRITE: var .
+
+    $défaut  réduction par utilisation de la règle 93 (ENS_PARA_WRITE)
+
+
+état 82
+
+   89 write_statement: mc_write po ENS_PARA_WRITE . pf pvg
+   90 ENS_PARA_WRITE: ENS_PARA_WRITE . verg str
+   91               | ENS_PARA_WRITE . verg var
+
+    pf    décalage et aller à l'état 121
+    verg  décalage et aller à l'état 122
+
+
+état 83
+
+   26 EXPRE: EXPRE . mc_or CONDIT
+   27      | EXPRE . mc_and CONDIT
+   97 CONDI: EXPRE .
+
+    mc_or   décalage et aller à l'état 106
+    mc_and  décalage et aller à l'état 107
+
+    $défaut  réduction par utilisation de la règle 97 (CONDI)
+
+
+état 84
+
+   82 A_if: mc_if po CONDI . pf
+
+    pf  décalage et aller à l'état 123
+
+
+état 85
+
+   75 ens_list_var: po list_var . pf
+   76 list_var: list_var . verg var
+
+    pf    décalage et aller à l'état 124
+    verg  décalage et aller à l'état 125
+
+
+état 86
+
+   77 list_var: var .
+
+    $défaut  réduction par utilisation de la règle 77 (list_var)
+
+
+état 87
+
+   71 eqival_statement: mc_equival ens_list_vars pvg .
+
+    $défaut  réduction par utilisation de la règle 71 (eqival_statement)
+
+
+état 88
+
+   74 ens_list_var: ens_list_var verg . po list_var pf
+
+    po  décalage et aller à l'état 126
+
+
+état 89
+
+    8 FCT: debut_fct ENSINST assignment mc_endr .
+
+    $défaut  réduction par utilisation de la règle 8 (FCT)
+
+
+état 90
+
+   85 assignment: var aff valeur . pvg
+
+    pvg  décalage et aller à l'état 127
+
+
+état 91
+
+   63 ENSINST: ENSINST . INST
+   83 else_clause: mc_else ENSINST .
+
+    idf         décalage et aller à l'état 16
+    mc_read     décalage et aller à l'état 17
+    mc_write    décalage et aller à l'état 18
+    mc_if       décalage et aller à l'état 19
+    mc_dowhile  décalage et aller à l'état 20
+    mc_equival  décalage et aller à l'état 21
+
+    $défaut  réduction par utilisation de la règle 83 (else_clause)
+
+    INST               aller à l'état 45
+    eqival_statement   aller à l'état 24
+    var                aller à l'état 25
+    if_statement       aller à l'état 26
+    B_if               aller à l'état 27
+    A_if               aller à l'état 28
+    assignment         aller à l'état 54
+    read_statement     aller à l'état 30
+    write_statement    aller à l'état 31
+    dowhile_statement  aller à l'état 32
+    B_while            aller à l'état 33
+    A_while            aller à l'état 34
+
+
+état 92
+
+   80 if_statement: B_if else_clause mc_endif .
+
+    $défaut  réduction par utilisation de la règle 80 (if_statement)
+
+
+état 93
+
+   63 ENSINST: ENSINST . INST
+   81 B_if: A_if mc_then ENSINST .
+
+    idf         décalage et aller à l'état 16
+    mc_read     décalage et aller à l'état 17
+    mc_write    décalage et aller à l'état 18
+    mc_if       décalage et aller à l'état 19
+    mc_dowhile  décalage et aller à l'état 20
+    mc_equival  décalage et aller à l'état 21
+
+    $défaut  réduction par utilisation de la règle 81 (B_if)
+
+    INST               aller à l'état 45
+    eqival_statement   aller à l'état 24
+    var                aller à l'état 25
+    if_statement       aller à l'état 26
+    B_if               aller à l'état 27
+    A_if               aller à l'état 28
+    assignment         aller à l'état 54
+    read_statement     aller à l'état 30
+    write_statement    aller à l'état 31
+    dowhile_statement  aller à l'état 32
+    B_while            aller à l'état 33
+    A_while            aller à l'état 34
+
+
+état 94
+
+   94 dowhile_statement: B_while ENSINST mc_enddo .
+
+    $défaut  réduction par utilisation de la règle 94 (dowhile_statement)
+
+
+état 95
+
+   95 B_while: A_while po CONDI . pf
+
+    pf  décalage et aller à l'état 128
+
+
+état 96
+
+   10 debut_fct: TYPE mc_rtin idf po . IDFS pf DECS
+
+    idf  décalage et aller à l'état 129
+
+    $défaut  réduction par utilisation de la règle 5 (VIDE)
+
+    VIDE    aller à l'état 130
+    IDFS    aller à l'état 131
+    ENSIDF  aller à l'état 132
+
+
+état 97
+
+   20 DEC: TYPE idf . mul inti pvg
+   21    | TYPE idf . mc_dim po TAILLE pf pvg
+   25 ENSIDF_dec: idf . partie_gauch_affectation
+
+    aff     décalage et aller à l'état 133
+    mc_dim  décalage et aller à l'état 134
+    mul     décalage et aller à l'état 135
+
+    $défaut  réduction par utilisation de la règle 5 (VIDE)
+
+    VIDE                      aller à l'état 136
+    partie_gauch_affectation  aller à l'état 137
+
+
+état 98
+
+   19 DEC: TYPE ENSIDF_dec . pvg
+   24 ENSIDF_dec: ENSIDF_dec . verg idf partie_gauch_affectation
+
+    pvg   décalage et aller à l'état 138
+    verg  décalage et aller à l'état 139
+
+
+état 99
+
+   61 INSTS: VIDE .
+
+    $défaut  réduction par utilisation de la règle 61 (INSTS)
+
+
+état 100
+
+    2 PRGM_PRIN: mc_prgrm idf DECS INSTS . mc_end
+
+    mc_end  décalage et aller à l'état 140
+
+
+état 101
+
+   62 INSTS: ENSINST .
+   63 ENSINST: ENSINST . INST
+
+    idf         décalage et aller à l'état 16
+    mc_read     décalage et aller à l'état 17
+    mc_write    décalage et aller à l'état 18
+    mc_if       décalage et aller à l'état 19
+    mc_dowhile  décalage et aller à l'état 20
+    mc_equival  décalage et aller à l'état 21
+
+    $défaut  réduction par utilisation de la règle 62 (INSTS)
+
+    INST               aller à l'état 45
+    eqival_statement   aller à l'état 24
+    var                aller à l'état 25
+    if_statement       aller à l'état 26
+    B_if               aller à l'état 27
+    A_if               aller à l'état 28
+    assignment         aller à l'état 54
+    read_statement     aller à l'état 30
+    write_statement    aller à l'état 31
+    dowhile_statement  aller à l'état 32
+    B_while            aller à l'état 33
+    A_while            aller à l'état 34
+
+
+état 102
+
+   17 ENSDEC: ENSDEC DEC .
+
+    $défaut  réduction par utilisation de la règle 17 (ENSDEC)
+
+
+état 103
+
+   48 OPERAND: idf po . TAILLE pf
+
+    idf       décalage et aller à l'état 62
+    inti      décalage et aller à l'état 63
+    real      décalage et aller à l'état 64
+    mc_call   décalage et aller à l'état 65
+    mc_true   décalage et aller à l'état 66
+    mc_false  décalage et aller à l'état 67
+    str       décalage et aller à l'état 68
+    po        décalage et aller à l'état 69
+
+    EXPRE    aller à l'état 70
+    CONDIT   aller à l'état 71
+    EXPREt   aller à l'état 72
+    TERM     aller à l'état 73
+    FACTOR   aller à l'état 74
+    OPERAND  aller à l'état 75
+    TAILLE   aller à l'état 141
+    LOGI     aller à l'état 77
+    valeur   aller à l'état 78
+
+
+état 104
+
+   49 OPERAND: mc_call idf . po ENSpara pf
+   50        | mc_call idf . po pf
+
+    po  décalage et aller à l'état 142
+
+
+état 105
+
+   26 EXPRE: EXPRE . mc_or CONDIT
+   27      | EXPRE . mc_and CONDIT
+   42 FACTOR: po EXPRE . pf
+
+    mc_or   décalage et aller à l'état 106
+    mc_and  décalage et aller à l'état 107
+    pf      décalage et aller à l'état 143
+
+
+état 106
+
+   26 EXPRE: EXPRE mc_or . CONDIT
+
+    idf       décalage et aller à l'état 62
+    inti      décalage et aller à l'état 63
+    real      décalage et aller à l'état 64
+    mc_call   décalage et aller à l'état 65
+    mc_true   décalage et aller à l'état 66
+    mc_false  décalage et aller à l'état 67
+    po        décalage et aller à l'état 69
+
+    CONDIT   aller à l'état 144
+    EXPREt   aller à l'état 72
+    TERM     aller à l'état 73
+    FACTOR   aller à l'état 74
+    OPERAND  aller à l'état 75
+    LOGI     aller à l'état 77
+
+
+état 107
+
+   27 EXPRE: EXPRE mc_and . CONDIT
+
+    idf       décalage et aller à l'état 62
+    inti      décalage et aller à l'état 63
+    real      décalage et aller à l'état 64
+    mc_call   décalage et aller à l'état 65
+    mc_true   décalage et aller à l'état 66
+    mc_false  décalage et aller à l'état 67
+    po        décalage et aller à l'état 69
+
+    CONDIT   aller à l'état 145
+    EXPREt   aller à l'état 72
+    TERM     aller à l'état 73
+    FACTOR   aller à l'état 74
+    OPERAND  aller à l'état 75
+    LOGI     aller à l'état 77
+
+
+état 108
+
+   31 CONDIT: CONDIT ge . EXPREt
+
+    idf       décalage et aller à l'état 62
+    inti      décalage et aller à l'état 63
+    real      décalage et aller à l'état 64
+    mc_call   décalage et aller à l'état 65
+    mc_true   décalage et aller à l'état 66
+    mc_false  décalage et aller à l'état 67
+    po        décalage et aller à l'état 69
+
+    EXPREt   aller à l'état 146
+    TERM     aller à l'état 73
+    FACTOR   aller à l'état 74
+    OPERAND  aller à l'état 75
+    LOGI     aller à l'état 77
+
+
+état 109
+
+   32 CONDIT: CONDIT eq . EXPREt
+
+    idf       décalage et aller à l'état 62
+    inti      décalage et aller à l'état 63
+    real      décalage et aller à l'état 64
+    mc_call   décalage et aller à l'état 65
+    mc_true   décalage et aller à l'état 66
+    mc_false  décalage et aller à l'état 67
+    po        décalage et aller à l'état 69
+
+    EXPREt   aller à l'état 147
+    TERM     aller à l'état 73
+    FACTOR   aller à l'état 74
+    OPERAND  aller à l'état 75
+    LOGI     aller à l'état 77
+
+
+état 110
+
+   33 CONDIT: CONDIT ne . EXPREt
+
+    idf       décalage et aller à l'état 62
+    inti      décalage et aller à l'état 63
+    real      décalage et aller à l'état 64
+    mc_call   décalage et aller à l'état 65
+    mc_true   décalage et aller à l'état 66
+    mc_false  décalage et aller à l'état 67
+    po        décalage et aller à l'état 69
+
+    EXPREt   aller à l'état 148
+    TERM     aller à l'état 73
+    FACTOR   aller à l'état 74
+    OPERAND  aller à l'état 75
+    LOGI     aller à l'état 77
+
+
+état 111
+
+   34 CONDIT: CONDIT le . EXPREt
+
+    idf       décalage et aller à l'état 62
+    inti      décalage et aller à l'état 63
+    real      décalage et aller à l'état 64
+    mc_call   décalage et aller à l'état 65
+    mc_true   décalage et aller à l'état 66
+    mc_false  décalage et aller à l'état 67
+    po        décalage et aller à l'état 69
+
+    EXPREt   aller à l'état 149
+    TERM     aller à l'état 73
+    FACTOR   aller à l'état 74
+    OPERAND  aller à l'état 75
+    LOGI     aller à l'état 77
+
+
+état 112
+
+   29 CONDIT: CONDIT lt . EXPREt
+
+    idf       décalage et aller à l'état 62
+    inti      décalage et aller à l'état 63
+    real      décalage et aller à l'état 64
+    mc_call   décalage et aller à l'état 65
+    mc_true   décalage et aller à l'état 66
+    mc_false  décalage et aller à l'état 67
+    po        décalage et aller à l'état 69
+
+    EXPREt   aller à l'état 150
+    TERM     aller à l'état 73
+    FACTOR   aller à l'état 74
+    OPERAND  aller à l'état 75
+    LOGI     aller à l'état 77
+
+
+état 113
+
+   30 CONDIT: CONDIT gt . EXPREt
+
+    idf       décalage et aller à l'état 62
+    inti      décalage et aller à l'état 63
+    real      décalage et aller à l'état 64
+    mc_call   décalage et aller à l'état 65
+    mc_true   décalage et aller à l'état 66
+    mc_false  décalage et aller à l'état 67
+    po        décalage et aller à l'état 69
+
+    EXPREt   aller à l'état 151
+    TERM     aller à l'état 73
+    FACTOR   aller à l'état 74
+    OPERAND  aller à l'état 75
+    LOGI     aller à l'état 77
+
+
+état 114
+
+   36 EXPREt: EXPREt add . TERM
+
+    idf       décalage et aller à l'état 62
+    inti      décalage et aller à l'état 63
+    real      décalage et aller à l'état 64
+    mc_call   décalage et aller à l'état 65
+    mc_true   décalage et aller à l'état 66
+    mc_false  décalage et aller à l'état 67
+    po        décalage et aller à l'état 69
+
+    TERM     aller à l'état 152
+    FACTOR   aller à l'état 74
+    OPERAND  aller à l'état 75
+    LOGI     aller à l'état 77
+
+
+état 115
+
+   37 EXPREt: EXPREt sub . TERM
+
+    idf       décalage et aller à l'état 62
+    inti      décalage et aller à l'état 63
+    real      décalage et aller à l'état 64
+    mc_call   décalage et aller à l'état 65
+    mc_true   décalage et aller à l'état 66
+    mc_false  décalage et aller à l'état 67
+    po        décalage et aller à l'état 69
+
+    TERM     aller à l'état 153
+    FACTOR   aller à l'état 74
+    OPERAND  aller à l'état 75
+    LOGI     aller à l'état 77
+
+
+état 116
+
+   39 TERM: TERM mul . FACTOR
+
+    idf       décalage et aller à l'état 62
+    inti      décalage et aller à l'état 63
+    real      décalage et aller à l'état 64
+    mc_call   décalage et aller à l'état 65
+    mc_true   décalage et aller à l'état 66
+    mc_false  décalage et aller à l'état 67
+    po        décalage et aller à l'état 69
+
+    FACTOR   aller à l'état 154
+    OPERAND  aller à l'état 75
+    LOGI     aller à l'état 77
+
+
+état 117
+
+   40 TERM: TERM divi . FACTOR
+
+    idf       décalage et aller à l'état 62
+    inti      décalage et aller à l'état 63
+    real      décalage et aller à l'état 64
+    mc_call   décalage et aller à l'état 65
+    mc_true   décalage et aller à l'état 66
+    mc_false  décalage et aller à l'état 67
+    po        décalage et aller à l'état 69
+
+    FACTOR   aller à l'état 155
+    OPERAND  aller à l'état 75
+    LOGI     aller à l'état 77
+
+
+état 118
+
+   79 var: idf po TAILLE pf .
+
+    $défaut  réduction par utilisation de la règle 79 (var)
+
+
+état 119
+
+   53 TAILLE: TAILLE verg . valeur
+
+    idf       décalage et aller à l'état 62
+    inti      décalage et aller à l'état 63
+    real      décalage et aller à l'état 64
+    mc_call   décalage et aller à l'état 65
+    mc_true   décalage et aller à l'état 66
+    mc_false  décalage et aller à l'état 67
+    str       décalage et aller à l'état 68
+    po        décalage et aller à l'état 69
+
+    EXPRE    aller à l'état 70
+    CONDIT   aller à l'état 71
+    EXPREt   aller à l'état 72
+    TERM     aller à l'état 73
+    FACTOR   aller à l'état 74
+    OPERAND  aller à l'état 75
+    LOGI     aller à l'état 77
+    valeur   aller à l'état 156
+
+
+état 120
+
+   88 read_statement: mc_read po var pf . pvg
+
+    pvg  décalage et aller à l'état 157
+
+
+état 121
+
+   89 write_statement: mc_write po ENS_PARA_WRITE pf . pvg
+
+    pvg  décalage et aller à l'état 158
+
+
+état 122
+
+   90 ENS_PARA_WRITE: ENS_PARA_WRITE verg . str
+   91               | ENS_PARA_WRITE verg . var
+
+    idf  décalage et aller à l'état 16
+    str  décalage et aller à l'état 159
+
+    var  aller à l'état 160
+
+
+état 123
+
+   82 A_if: mc_if po CONDI pf .
+
+    $défaut  réduction par utilisation de la règle 82 (A_if)
+
+
+état 124
+
+   75 ens_list_var: po list_var pf .
+
+    $défaut  réduction par utilisation de la règle 75 (ens_list_var)
+
+
+état 125
+
+   76 list_var: list_var verg . var
+
+    idf  décalage et aller à l'état 16
+
+    var  aller à l'état 161
+
+
+état 126
+
+   74 ens_list_var: ens_list_var verg po . list_var pf
+
+    idf  décalage et aller à l'état 16
+
+    list_var  aller à l'état 162
+    var       aller à l'état 86
+
+
+état 127
+
+   85 assignment: var aff valeur pvg .
+
+    $défaut  réduction par utilisation de la règle 85 (assignment)
+
+
+état 128
+
+   95 B_while: A_while po CONDI pf .
+
+    $défaut  réduction par utilisation de la règle 95 (B_while)
+
+
+état 129
+
+   60 ENSIDF: idf .
+
+    $défaut  réduction par utilisation de la règle 60 (ENSIDF)
+
+
+état 130
+
+   58 IDFS: VIDE .
+
+    $défaut  réduction par utilisation de la règle 58 (IDFS)
+
+
+état 131
+
+   10 debut_fct: TYPE mc_rtin idf po IDFS . pf DECS
+
+    pf  décalage et aller à l'état 163
+
+
+état 132
+
+   57 IDFS: ENSIDF .
+   59 ENSIDF: ENSIDF . verg idf
+
+    verg  décalage et aller à l'état 164
+
+    $défaut  réduction par utilisation de la règle 57 (IDFS)
+
+
+état 133
+
+   22 partie_gauch_affectation: aff . valeur
+
+    idf       décalage et aller à l'état 62
+    inti      décalage et aller à l'état 63
+    real      décalage et aller à l'état 64
+    mc_call   décalage et aller à l'état 65
+    mc_true   décalage et aller à l'état 66
+    mc_false  décalage et aller à l'état 67
+    str       décalage et aller à l'état 68
+    po        décalage et aller à l'état 69
+
+    EXPRE    aller à l'état 70
+    CONDIT   aller à l'état 71
+    EXPREt   aller à l'état 72
+    TERM     aller à l'état 73
+    FACTOR   aller à l'état 74
+    OPERAND  aller à l'état 75
+    LOGI     aller à l'état 77
+    valeur   aller à l'état 165
+
+
+état 134
+
+   21 DEC: TYPE idf mc_dim . po TAILLE pf pvg
+
+    po  décalage et aller à l'état 166
+
+
+état 135
+
+   20 DEC: TYPE idf mul . inti pvg
+
+    inti  décalage et aller à l'état 167
+
+
+état 136
+
+   23 partie_gauch_affectation: VIDE .
+
+    $défaut  réduction par utilisation de la règle 23 (partie_gauch_affectation)
+
+
+état 137
+
+   25 ENSIDF_dec: idf partie_gauch_affectation .
+
+    $défaut  réduction par utilisation de la règle 25 (ENSIDF_dec)
+
+
+état 138
+
+   19 DEC: TYPE ENSIDF_dec pvg .
+
+    $défaut  réduction par utilisation de la règle 19 (DEC)
+
+
+état 139
+
+   24 ENSIDF_dec: ENSIDF_dec verg . idf partie_gauch_affectation
+
+    idf  décalage et aller à l'état 168
+
+
+état 140
+
+    2 PRGM_PRIN: mc_prgrm idf DECS INSTS mc_end .
+
+    $défaut  réduction par utilisation de la règle 2 (PRGM_PRIN)
+
+
+état 141
+
+   48 OPERAND: idf po TAILLE . pf
+   53 TAILLE: TAILLE . verg valeur
+
+    pf    décalage et aller à l'état 169
+    verg  décalage et aller à l'état 119
+
+
+état 142
+
+   49 OPERAND: mc_call idf po . ENSpara pf
+   50        | mc_call idf po . pf
+
+    idf       décalage et aller à l'état 62
+    inti      décalage et aller à l'état 63
+    real      décalage et aller à l'état 64
+    mc_call   décalage et aller à l'état 65
+    mc_true   décalage et aller à l'état 66
+    mc_false  décalage et aller à l'état 67
+    str       décalage et aller à l'état 68
+    po        décalage et aller à l'état 69
+    pf        décalage et aller à l'état 170
+
+    EXPRE    aller à l'état 70
+    CONDIT   aller à l'état 71
+    EXPREt   aller à l'état 72
+    TERM     aller à l'état 73
+    FACTOR   aller à l'état 74
+    OPERAND  aller à l'état 75
+    ENSpara  aller à l'état 171
+    LOGI     aller à l'état 77
+    valeur   aller à l'état 172
+
+
+état 143
+
+   42 FACTOR: po EXPRE pf .
+
+    $défaut  réduction par utilisation de la règle 42 (FACTOR)
+
+
+état 144
+
+   26 EXPRE: EXPRE mc_or CONDIT .
+   29 CONDIT: CONDIT . lt EXPREt
+   30       | CONDIT . gt EXPREt
+   31       | CONDIT . ge EXPREt
+   32       | CONDIT . eq EXPREt
+   33       | CONDIT . ne EXPREt
+   34       | CONDIT . le EXPREt
+
+    ge  décalage et aller à l'état 108
+    eq  décalage et aller à l'état 109
+    ne  décalage et aller à l'état 110
+    le  décalage et aller à l'état 111
+    lt  décalage et aller à l'état 112
+    gt  décalage et aller à l'état 113
+
+    $défaut  réduction par utilisation de la règle 26 (EXPRE)
+
+
+état 145
+
+   27 EXPRE: EXPRE mc_and CONDIT .
+   29 CONDIT: CONDIT . lt EXPREt
+   30       | CONDIT . gt EXPREt
+   31       | CONDIT . ge EXPREt
+   32       | CONDIT . eq EXPREt
+   33       | CONDIT . ne EXPREt
+   34       | CONDIT . le EXPREt
+
+    ge  décalage et aller à l'état 108
+    eq  décalage et aller à l'état 109
+    ne  décalage et aller à l'état 110
+    le  décalage et aller à l'état 111
+    lt  décalage et aller à l'état 112
+    gt  décalage et aller à l'état 113
+
+    $défaut  réduction par utilisation de la règle 27 (EXPRE)
+
+
+état 146
+
+   31 CONDIT: CONDIT ge EXPREt .
+   36 EXPREt: EXPREt . add TERM
+   37       | EXPREt . sub TERM
+
+    add  décalage et aller à l'état 114
+    sub  décalage et aller à l'état 115
+
+    $défaut  réduction par utilisation de la règle 31 (CONDIT)
+
+
+état 147
+
+   32 CONDIT: CONDIT eq EXPREt .
+   36 EXPREt: EXPREt . add TERM
+   37       | EXPREt . sub TERM
+
+    add  décalage et aller à l'état 114
+    sub  décalage et aller à l'état 115
+
+    $défaut  réduction par utilisation de la règle 32 (CONDIT)
+
+
+état 148
+
+   33 CONDIT: CONDIT ne EXPREt .
+   36 EXPREt: EXPREt . add TERM
+   37       | EXPREt . sub TERM
+
+    add  décalage et aller à l'état 114
+    sub  décalage et aller à l'état 115
+
+    $défaut  réduction par utilisation de la règle 33 (CONDIT)
+
+
+état 149
+
+   34 CONDIT: CONDIT le EXPREt .
+   36 EXPREt: EXPREt . add TERM
+   37       | EXPREt . sub TERM
+
+    add  décalage et aller à l'état 114
+    sub  décalage et aller à l'état 115
+
+    $défaut  réduction par utilisation de la règle 34 (CONDIT)
+
+
+état 150
+
+   29 CONDIT: CONDIT lt EXPREt .
+   36 EXPREt: EXPREt . add TERM
+   37       | EXPREt . sub TERM
+
+    add  décalage et aller à l'état 114
+    sub  décalage et aller à l'état 115
+
+    $défaut  réduction par utilisation de la règle 29 (CONDIT)
+
+
+état 151
+
+   30 CONDIT: CONDIT gt EXPREt .
+   36 EXPREt: EXPREt . add TERM
+   37       | EXPREt . sub TERM
+
+    add  décalage et aller à l'état 114
+    sub  décalage et aller à l'état 115
+
+    $défaut  réduction par utilisation de la règle 30 (CONDIT)
+
+
+état 152
+
+   36 EXPREt: EXPREt add TERM .
+   39 TERM: TERM . mul FACTOR
+   40     | TERM . divi FACTOR
+
+    mul   décalage et aller à l'état 116
+    divi  décalage et aller à l'état 117
+
+    $défaut  réduction par utilisation de la règle 36 (EXPREt)
+
+
+état 153
+
+   37 EXPREt: EXPREt sub TERM .
+   39 TERM: TERM . mul FACTOR
+   40     | TERM . divi FACTOR
+
+    mul   décalage et aller à l'état 116
+    divi  décalage et aller à l'état 117
+
+    $défaut  réduction par utilisation de la règle 37 (EXPREt)
+
+
+état 154
+
+   39 TERM: TERM mul FACTOR .
+
+    $défaut  réduction par utilisation de la règle 39 (TERM)
+
+
+état 155
+
+   40 TERM: TERM divi FACTOR .
+
+    $défaut  réduction par utilisation de la règle 40 (TERM)
+
+
+état 156
+
+   53 TAILLE: TAILLE verg valeur .
+
+    $défaut  réduction par utilisation de la règle 53 (TAILLE)
+
+
+état 157
+
+   88 read_statement: mc_read po var pf pvg .
+
+    $défaut  réduction par utilisation de la règle 88 (read_statement)
+
+
+état 158
+
+   89 write_statement: mc_write po ENS_PARA_WRITE pf pvg .
+
+    $défaut  réduction par utilisation de la règle 89 (write_statement)
+
+
+état 159
+
+   90 ENS_PARA_WRITE: ENS_PARA_WRITE verg str .
+
+    $défaut  réduction par utilisation de la règle 90 (ENS_PARA_WRITE)
+
+
+état 160
+
+   91 ENS_PARA_WRITE: ENS_PARA_WRITE verg var .
+
+    $défaut  réduction par utilisation de la règle 91 (ENS_PARA_WRITE)
+
+
+état 161
+
+   76 list_var: list_var verg var .
+
+    $défaut  réduction par utilisation de la règle 76 (list_var)
+
+
+état 162
+
+   74 ens_list_var: ens_list_var verg po list_var . pf
+   76 list_var: list_var . verg var
+
+    pf    décalage et aller à l'état 173
+    verg  décalage et aller à l'état 125
+
+
+état 163
+
+   10 debut_fct: TYPE mc_rtin idf po IDFS pf . DECS
+
+    mc_logi  décalage et aller à l'état 1
+    mc_char  décalage et aller à l'état 2
+    mc_int   décalage et aller à l'état 3
+    mc_real  décalage et aller à l'état 4
+
+    $défaut  réduction par utilisation de la règle 5 (VIDE)
+
+    VIDE    aller à l'état 57
+    TYPE    aller à l'état 58
+    DECS    aller à l'état 174
+    ENSDEC  aller à l'état 60
+    DEC     aller à l'état 61
+
+
+état 164
+
+   59 ENSIDF: ENSIDF verg . idf
+
+    idf  décalage et aller à l'état 175
+
+
+état 165
+
+   22 partie_gauch_affectation: aff valeur .
+
+    $défaut  réduction par utilisation de la règle 22 (partie_gauch_affectation)
+
+
+état 166
+
+   21 DEC: TYPE idf mc_dim po . TAILLE pf pvg
+
+    idf       décalage et aller à l'état 62
+    inti      décalage et aller à l'état 63
+    real      décalage et aller à l'état 64
+    mc_call   décalage et aller à l'état 65
+    mc_true   décalage et aller à l'état 66
+    mc_false  décalage et aller à l'état 67
+    str       décalage et aller à l'état 68
+    po        décalage et aller à l'état 69
+
+    EXPRE    aller à l'état 70
+    CONDIT   aller à l'état 71
+    EXPREt   aller à l'état 72
+    TERM     aller à l'état 73
+    FACTOR   aller à l'état 74
+    OPERAND  aller à l'état 75
+    TAILLE   aller à l'état 176
+    LOGI     aller à l'état 77
+    valeur   aller à l'état 78
+
+
+état 167
+
+   20 DEC: TYPE idf mul inti . pvg
+
+    pvg  décalage et aller à l'état 177
+
+
+état 168
+
+   24 ENSIDF_dec: ENSIDF_dec verg idf . partie_gauch_affectation
+
+    aff  décalage et aller à l'état 133
+
+    $défaut  réduction par utilisation de la règle 5 (VIDE)
+
+    VIDE                      aller à l'état 136
+    partie_gauch_affectation  aller à l'état 178
+
+
+état 169
+
+   48 OPERAND: idf po TAILLE pf .
+
+    $défaut  réduction par utilisation de la règle 48 (OPERAND)
+
+
+état 170
+
+   50 OPERAND: mc_call idf po pf .
+
+    $défaut  réduction par utilisation de la règle 50 (OPERAND)
+
+
+état 171
+
+   49 OPERAND: mc_call idf po ENSpara . pf
+   51 ENSpara: ENSpara . verg valeur
+
+    pf    décalage et aller à l'état 179
+    verg  décalage et aller à l'état 180
+
+
+état 172
+
+   52 ENSpara: valeur .
+
+    $défaut  réduction par utilisation de la règle 52 (ENSpara)
+
+
+état 173
+
+   74 ens_list_var: ens_list_var verg po list_var pf .
+
+    $défaut  réduction par utilisation de la règle 74 (ens_list_var)
+
+
+état 174
+
+   10 debut_fct: TYPE mc_rtin idf po IDFS pf DECS .
+
+    $défaut  réduction par utilisation de la règle 10 (debut_fct)
+
+
+état 175
+
+   59 ENSIDF: ENSIDF verg idf .
+
+    $défaut  réduction par utilisation de la règle 59 (ENSIDF)
+
+
+état 176
+
+   21 DEC: TYPE idf mc_dim po TAILLE . pf pvg
+   53 TAILLE: TAILLE . verg valeur
+
+    pf    décalage et aller à l'état 181
+    verg  décalage et aller à l'état 119
+
+
+état 177
+
+   20 DEC: TYPE idf mul inti pvg .
+
+    $défaut  réduction par utilisation de la règle 20 (DEC)
+
+
+état 178
+
+   24 ENSIDF_dec: ENSIDF_dec verg idf partie_gauch_affectation .
+
+    $défaut  réduction par utilisation de la règle 24 (ENSIDF_dec)
+
+
+état 179
+
+   49 OPERAND: mc_call idf po ENSpara pf .
+
+    $défaut  réduction par utilisation de la règle 49 (OPERAND)
+
+
+état 180
+
+   51 ENSpara: ENSpara verg . valeur
+
+    idf       décalage et aller à l'état 62
+    inti      décalage et aller à l'état 63
+    real      décalage et aller à l'état 64
+    mc_call   décalage et aller à l'état 65
+    mc_true   décalage et aller à l'état 66
+    mc_false  décalage et aller à l'état 67
+    str       décalage et aller à l'état 68
+    po        décalage et aller à l'état 69
+
+    EXPRE    aller à l'état 70
+    CONDIT   aller à l'état 71
+    EXPREt   aller à l'état 72
+    TERM     aller à l'état 73
+    FACTOR   aller à l'état 74
+    OPERAND  aller à l'état 75
+    LOGI     aller à l'état 77
+    valeur   aller à l'état 182
+
+
+état 181
+
+   21 DEC: TYPE idf mc_dim po TAILLE pf . pvg
+
+    pvg  décalage et aller à l'état 183
+
+
+état 182
+
+   51 ENSpara: ENSpara verg valeur .
+
+    $défaut  réduction par utilisation de la règle 51 (ENSpara)
+
+
+état 183
+
+   21 DEC: TYPE idf mc_dim po TAILLE pf pvg .
+
+    $défaut  réduction par utilisation de la règle 21 (DEC)

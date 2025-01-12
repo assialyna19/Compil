@@ -1,519 +1,881 @@
-%{ 
-	extern int yylex(void); 
-	#include <stdio.h>
-	#include <stdlib.h>
-	#include <string.h>
-	#include "ts.h"
-	#include "syntaxique.tab.h"
-     int yylex();
-     int yyerror(char *msg);
+%{
+    #include <stdio.h>
+    int nb_ligne=1, Col=1;
+    int yylex(void);
+    char* file_name;
+    #include "ts_HASH_TABLE.c"
+    #include "int_pile.c"
+    #include "str_pile.c"
+    #include "expre_pile.c"
+    #include "fct_etiq.c"
+    #include "pgm.c"
+    #include <stdlib.h>
+    #include <string.h>
+    extern FILE *yyin;
+    // int deb_else=0;
+     StackNode_int *deb_else = NULL;
+     StackNode_int *deb_while = NULL;
+    int qc=0;
+    // int Fin_if=0;
+     StackNode_int *Fin_if = NULL;
+     StackNode_int *Fin_while = NULL;
+     StackNode_int *fin_routine = NULL;
+     StackNode* Operandes_pile = NULL;
+    char tmp [20];
+    int nb_argument=0;
+    extern char *type;
+    char taille[20];
+    int my_yyerror(char *msg, char *entite, char *description);
+    int yyerror ( char*  msg );
 
-
-
-    int nb_ligne=1, col=1;
-    int i=0;	
-	int j=0;
-	int t=0;
-	int s;
-	int A=1;
-	int operateur[10];
-	int opera = 0;
-	float k;
-	int affect;
-	int type;
-	int y=0;
-	char displ[50];
-	char sauvType[25];
-	char save[20];
-	char IDF[100][20];
-	char sign[40];
-	char IDFF[20];
-	char IDFD[100][20];
-	char cstStr[10];
-	float cstNum[10];
-	float calculResult[10];
-	char STR[100];
-	char v[20];
-	extern FILE *yyin;
-	int  valCst;
-	char *valChar;
-	float valFloat;
-	char *valStr;
-
-	int condition=0;
-	
-		void yyerror(const char *s)
-{
-    fprintf(stderr, "Erreur syntaxique: %s à la ligne %d, colonne %d\\n", s, nb_ligne, col);
-}
 
 
 %}
 
 %union {
-      int     entier;
-      char*   str;
-      float   reel;
+         int     entier;
+         char*   str;
+         float reel;
 }
 
-%token cst_int
-%token cst_real
-%token cst_str
+%token <str>idf aff mc_prgrm mc_rtin <entier>inti <reel>real mc_endr mc_call mc_dim mc_logi mc_char mc_true mc_false mc_read mc_write pvg <str>str mc_int mc_real mc_end mc_if mc_then mc_else mc_dowhile mc_enddo mc_equival mc_or ge eq ne le add sub mul divi mc_and mc_endif lt gt po pf verg err 
+%left lt gt ge eq ne le
+%left add sub
+%left mul divi
+%left mc_or mc_and
 
-%token ERREUR_LEXICAL
-%token MC_PROGRAMME MC_END <str>MC_IDF <str>MC_CHAINE MC_writeln MC_READLN MC_ENDIF MC_ELSE MC_THEN MC_IF MC_ENDDO MC_BEGIN MC_FOR MC_WHILE MC_DO MC_ENTIER MC_REAL
-%token MC_VAR MC_CONST MC_CARACTERE MC_INTEGER MC_DIMENSION MC_ROUTINE MC_ENDR MC_TAB MC_SUP MC_SUPEGAL MC_INF MC_NOEGAL MC_EGAL MC_OR MC_AND MC_INFEGAL Int
-%token pvg vg th division crof crou soustraction addition multiplication parouv parferm couvrante cfermante point aff pourcentage acov acoferm <entier>entier <str>mc_bool <reel>reel 
-%token MC_NEGATION_LOGIQUE
 
-%start S
-%right  MC_NEGATION_LOGIQUE
-%left OU
-%left ET
-%left inf sup infe supe
-%right aff
-%left addition soustraction
-%left multiplication division
+%type <str> TAILLE
+%type <str> partie_gauch_affectation
+%type <str> valeur
+%type <str> EXPRE
+%type <str> TERM
+%type <str> OPERAND
+%type <str> FACTOR
+%type <str> EXPREt
+%type <str> CONDI
+%type <str> CONDIT
+%type <str> LOGI
+%type <str> var
+%type <str> ENSpara
+%type <str> assignment
+%type <str> debut_fct
+
+
 %%
-S : PROGRAMME 
+s: FCTS PRGM_PRIN {YYACCEPT;}
+;
+PRGM_PRIN: mc_prgrm idf DECS INSTS mc_end
+;
+FCTS: VIDE | ENSFCT
+;
+VIDE:
+;
+ENSFCT: ENSFCT FCT | FCT
+;
+FCT
+    : debut_fct ENSINST assignment mc_endr {
+        if(strcmp($1,$3)!=0){
+            my_yyerror("Sementique error",$3,"est different du nom de la fonction.");
+        }
+    }
+    | debut_fct assignment mc_endr {
+        if(strcmp($1,$2)!=0){
+            my_yyerror("Sementique error",$2,"est different du nom de la fonction.");
+        }
+    }
+
+;
+debut_fct
+    : TYPE mc_rtin idf po IDFS pf DECS {
+        //R1
+        // int p = lookup($3);
+        // printf("r1 look up p:%d\n",p);
+        
+        // if (p==-1){
+        //     p=inserer_fct($3,false,0);
+        //     printf("r1 inserer_fct p:%d\n",p);
+        //     show_table();
+        // }else{
+        //     my_yyerror("Sementique error",$3,"est deja declare.");
+        // }
+        //R3
+        // int p2 = lookup($3);
+        // printf("r3 look up p:%d\n",p2);
+        // int a,b;
+        // if (p2==-1){
+        //     my_yyerror("Sementique error",$3,"est non declare.1");
+        // }else{
+        //     if(table_fct[p2].util){
+        //         my_yyerror("Sementique error",$3,"est deja declare.");
+        //     }else{
+        //         a = table_fct[p2].address;
+        //         while(a!=0){
+        //             b= strtol(quad[a].op1, NULL, 10);
+        //             sprintf(tmp,"%d",qc);
+        //             ajour_quad(a,1,tmp);
+        //             a=b;
+        //         }
+        //         table_fct[p2].address=qc;
+        //     }
+        // }
+        //R3 fin
+        Declarer($3);
+        inserer_fonction($3,nb_argument);
+        nb_argument=0;
+        $$=$3;
+}
+;
+TYPE: mc_int | mc_real | mc_char | mc_logi
+;
+DECS: VIDE | ENSDEC
+;
+ENSDEC: ENSDEC DEC | DEC
+;
+DEC
+    : TYPE ENSIDF_dec pvg | TYPE idf mul inti pvg {
+        // printf("the dcr idf is :%s\n",$2);
+        if(Declarer($2)){
+            my_yyerror("Sementique error",$2,"est deja declare.");
+        }
+    }
+    | TYPE idf mc_dim po TAILLE pf pvg {
+        if(Declarer($2)){
+            my_yyerror("Sementique error",$2,"est deja declare.");}
+            rechercher($2,"IDF","TABLEAU",0,0,$5,0);
+            initiali_tab($2,$5);
+
+            char *tab_taille =strdup($5);
+            char *tab_name=$2;
 
 
-PROGRAMME: MC_PROGRAMME MC_IDF MC_VAR acov LIST_DEC acoferm MC_BEGIN LIST_INST MC_END
-    {
-        printf("syntaxiquement correct\\n"); 
-		YYACCEPT;
-	} 
+            char *token = strtok(tab_taille, ",");
+            while (token != NULL) {
+                StackNode* operande_tmp = pop(&Operandes_pile);
+                quadr("Bounds", "0", strdup(operande_tmp->operande_name), "vide");
+                token = strtok(NULL, ",");
+            }
+            quadr("ADEC", tab_name, "vide", "vide");
+            // <==*   9ader n remplasiw taille b ENSpara_arith chhi lazem expr ma tmedlekch real tema lazem difinit expr spesial mafihach les real wela nkhalou lewla w f semantique ndirouh ma y acceptich les real ==>en fin dert deuxieme bah ndirha kima C resultat 3adi real chahi ida kan real l compilateur wa7dou yrodo int w maydirch erreur 
+            } 
+;
+partie_gauch_affectation: aff valeur {$$=$2;} | VIDE { $$=" ";}
+;
+ENSIDF_dec
+    : ENSIDF_dec verg idf partie_gauch_affectation {
+        if(Declarer($3)){
+            my_yyerror("Sementique error",$3,"est deja declare.");
+        }
+        if(strcmp($4," ")!=0){
+            if (!areCompatible(GetTypeFromTS($3), $4)) {
+            my_yyerror("Sementique error","","incompatible type.");
+        }
+        // printf("\n\n------------yes they are compatible for the assignment\n\n");
+
+            if (strstr(GetTypeFromTS($3),"TABLEAU")==NULL && !SetValInTS($3,$4)){
+                my_yyerror("Sementique error",$3,",affectation non accepte.");
+            }else{
+                StackNode* poppedElement = pop(&Operandes_pile);
+                quadr("=", poppedElement->operande_name,"vide", $3);
+            }
+        }
+
+        rechercher($3,"IDF"," ",$4,0," ",0);
+    }
+| idf partie_gauch_affectation {
+    
+    if(Declarer($1)){
+        my_yyerror("Sementique error",$1,"est deja declare.");
+    }
+
+    if(strcmp($2," ")!=0){
+        if (!areCompatible(GetTypeFromTS($1), $2)) {
+        my_yyerror("Sementique error","","incompatible type.");
+    }
+    // printf("\n\n------------yes they are compatible for the assignment\n\n");
+
+        if (strstr(GetTypeFromTS($1),"TABLEAU")==NULL && !SetValInTS($1,$2)){
+            my_yyerror("Sementique error",$1,",affectation non accepte.");
+        }else{
+            StackNode* poppedElement = pop(&Operandes_pile);
+            quadr("=", poppedElement->operande_name,"vide", $1);
+        }
+    }
+    rechercher($1,"IDF"," ",$2,0," ",0);   
+}
+; 
+
+//ENSpara_arith: ENSpara_arith verg EXPRE | EXPRE // dert ENSpara_arith mechi dirakt sta3melt enspara parceque malazemch te9der dir parexemple true (logi) wla str tema dert hadi tmedlek ens des para arithme tema ghi les expr
+//;
+EXPRE
+    :EXPRE mc_or CONDIT {
+        if (isBoolean($1) && isBoolean($3)) {
+            bool val1 = strcmp($1, "true") == 0;
+            bool val2 = strcmp($3, "true") == 0;
+            bool res = val1 | val2;
+            // Conversion back to string is trivial here
+            char *backToStr = res ? "true" : "false";
+
+
+            StackNode* operande_tmp2 = pop(&Operandes_pile);
+            StackNode* operande_tmp1 = pop(&Operandes_pile);
+            char *res_tmp = strdup(Cree_temp_cond());
+            push(&Operandes_pile, "EXPRE", res_tmp, "LOGICAL");
+            createQuadLogic (2,operande_tmp1->operande_name,operande_tmp2->operande_name,res_tmp);
+            $$=backToStr;
+        }
+        else {
+            my_yyerror("Sementique error","","cannot use or with non boolean operands");
+        }
+    }
+    | EXPRE mc_and CONDIT{
+        if (isBoolean($1) && isBoolean($3)) {
+            bool val1 = strcmp($1, "true") == 0;
+            bool val2 = strcmp($3, "true") == 0;
+            bool res = val1 & val2;
+            // Conversion back to string is trivial here
+            char *backToStr = res ? "true" : "false";
+            
+            
+            StackNode* operande_tmp2 = pop(&Operandes_pile);
+            StackNode* operande_tmp1 = pop(&Operandes_pile);
+            char *res_tmp = strdup(Cree_temp_cond());
+            push(&Operandes_pile, "EXPRE", res_tmp, "LOGICAL");
+            createQuadLogic (3,operande_tmp1->operande_name,operande_tmp2->operande_name,res_tmp);
+            $$=backToStr;
+        }
+        else {
+            my_yyerror("Sementique error","","cannot use and with non boolean operands");
+        }
+    } 
+    | CONDIT {
+        StackNode* poppedElement = pop(&Operandes_pile);
+        push(&Operandes_pile, "EXPRE", poppedElement->operande_name, poppedElement->operande_type);
+        $$=$1;
+    }
+;
+CONDIT
+    : CONDIT lt EXPREt{   
+        if (!canPerformArithmetic($1, $3)) {
+            my_yyerror("Sementique error","","incompatible type.");
+        }   
+
+
+        
+        StackNode* operande_tmp2 = pop(&Operandes_pile);
+        StackNode* operande_tmp1 = pop(&Operandes_pile);
+        char *res_tmp = strdup(Cree_temp_cond());
+        push(&Operandes_pile, "CONDIT", res_tmp, "LOGICAL");
+        createQuadCompare (5,operande_tmp1->operande_name,operande_tmp2->operande_name,res_tmp);
+
+        $$=strdup(ltEntities($1,$3));// 3lah strdup: parce que add entite 3andha var pack to str hatet fiha l resulta w daret return doka $$ rah y pointi 3la hadi l var koun trouh wela tetbedel tani $$ tro7 wela tetbedel 3labiha str dup khir strdup cha dir treservi l $$ l espase li tehtajou fel mem dir strcpy lel back to str hadik w tdiir $$ t pointi 3la hada espase ejdiid bah $$ yweli 3andha l espase ta3ha ejdiid wahedha /koun fi union derna char str[20] mechi char* str koun diract derna strcpy parceque lespase rah reservi li houwa tab de 20 mais hna derna char * str tema lazem strdup 
+
+    } 
+    | CONDIT gt EXPREt{   
+        if (!canPerformArithmetic($1, $3)) {
+            my_yyerror("Sementique error","","incompatible type.");
+        }   
+
+        StackNode* operande_tmp2 = pop(&Operandes_pile);
+        StackNode* operande_tmp1 = pop(&Operandes_pile);
+        char *res_tmp = strdup(Cree_temp_cond());
+        push(&Operandes_pile, "CONDIT", res_tmp, "LOGICAL");
+        createQuadCompare (6,operande_tmp1->operande_name,operande_tmp2->operande_name,res_tmp);
+
+        $$=strdup(gtEntities($1,$3));// 3lah strdup: parce que add entite 3andha var pack to str hatet fiha l resulta w daret return doka $$ rah y pointi 3la hadi l var koun trouh wela tetbedel tani $$ tro7 wela tetbedel 3labiha str dup khir strdup cha dir treservi l $$ l espase li tehtajou fel mem dir strcpy lel back to str hadik w tdiir $$ t pointi 3la hada espase ejdiid bah $$ yweli 3andha l espase ta3ha ejdiid wahedha /koun fi union derna char str[20] mechi char* str koun diract derna strcpy parceque lespase rah reservi li houwa tab de 20 mais hna derna char * str tema lazem strdup 
+
+    } 
+    | CONDIT ge EXPREt{   
+        if (!canPerformArithmetic($1, $3)) {
+            my_yyerror("Sementique error","","incompatible type.");
+        }   
+
+
+        StackNode* operande_tmp2 = pop(&Operandes_pile);
+        StackNode* operande_tmp1 = pop(&Operandes_pile);
+        char *res_tmp = strdup(Cree_temp_cond());
+        push(&Operandes_pile, "CONDIT", res_tmp, "LOGICAL");
+        createQuadCompare (3,operande_tmp1->operande_name,operande_tmp2->operande_name,res_tmp);
+
+        $$=strdup(geEntities($1,$3));// 3lah strdup: parce que add entite 3andha var pack to str hatet fiha l resulta w daret return doka $$ rah y pointi 3la hadi l var koun trouh wela tetbedel tani $$ tro7 wela tetbedel 3labiha str dup khir strdup cha dir treservi l $$ l espase li tehtajou fel mem dir strcpy lel back to str hadik w tdiir $$ t pointi 3la hada espase ejdiid bah $$ yweli 3andha l espase ta3ha ejdiid wahedha /koun fi union derna char str[20] mechi char* str koun diract derna strcpy parceque lespase rah reservi li houwa tab de 20 mais hna derna char * str tema lazem strdup 
+
+    } 
+    | CONDIT eq EXPREt{   
+        if (!canPerformArithmetic($1, $3)) {
+            my_yyerror("Sementique error","","incompatible type.");
+        }   
+
+        
+        StackNode* operande_tmp2 = pop(&Operandes_pile);
+        StackNode* operande_tmp1 = pop(&Operandes_pile);
+        char *res_tmp = strdup(Cree_temp_cond());
+        push(&Operandes_pile, "CONDIT", res_tmp, "LOGICAL");
+        createQuadCompare (1,operande_tmp1->operande_name,operande_tmp2->operande_name,res_tmp);
+                $$=strdup(eqEntities($1,$3));// 3lah strdup: parce que add entite 3andha var pack to str hatet fiha l resulta w daret return doka $$ rah y pointi 3la hadi l var koun trouh wela tetbedel tani $$ tro7 wela tetbedel 3labiha str dup khir strdup cha dir treservi l $$ l espase li tehtajou fel mem dir strcpy lel back to str hadik w tdiir $$ t pointi 3la hada espase ejdiid bah $$ yweli 3andha l espase ta3ha ejdiid wahedha /koun fi union derna char str[20] mechi char* str koun diract derna strcpy parceque lespase rah reservi li houwa tab de 20 mais hna derna char * str tema lazem strdup 
+
+
+
+    } 
+    | CONDIT ne EXPREt{   
+        if (!canPerformArithmetic($1, $3)) {
+            my_yyerror("Sementique error","","incompatible type.");
+        }   
+
+
+        StackNode* operande_tmp2 = pop(&Operandes_pile);
+        StackNode* operande_tmp1 = pop(&Operandes_pile);
+        char *res_tmp = strdup(Cree_temp_cond());
+        push(&Operandes_pile, "CONDIT", res_tmp, "LOGICAL");
+        createQuadCompare (2,operande_tmp1->operande_name,operande_tmp2->operande_name,res_tmp);
+
+        $$=strdup(neEntities($1,$3));// 3lah strdup: parce que add entite 3andha var pack to str hatet fiha l resulta w daret return doka $$ rah y pointi 3la hadi l var koun trouh wela tetbedel tani $$ tro7 wela tetbedel 3labiha str dup khir strdup cha dir treservi l $$ l espase li tehtajou fel mem dir strcpy lel back to str hadik w tdiir $$ t pointi 3la hada espase ejdiid bah $$ yweli 3andha l espase ta3ha ejdiid wahedha /koun fi union derna char str[20] mechi char* str koun diract derna strcpy parceque lespase rah reservi li houwa tab de 20 mais hna derna char * str tema lazem strdup 
+
+    } 
+    | CONDIT le EXPREt{   
+        if (!canPerformArithmetic($1, $3)) {
+            my_yyerror("Sementique error","","incompatible type.");
+        }   
+
+        
+        StackNode* operande_tmp2 = pop(&Operandes_pile);
+        StackNode* operande_tmp1 = pop(&Operandes_pile);
+        char *res_tmp = strdup(Cree_temp_cond());
+        push(&Operandes_pile, "CONDIT", res_tmp, "LOGICAL");
+        createQuadCompare (4,operande_tmp1->operande_name,operande_tmp2->operande_name,res_tmp);
+                
+        $$=strdup(leEntities($1,$3));// 3lah strdup: parce que add entite 3andha var pack to str hatet fiha l resulta w daret return doka $$ rah y pointi 3la hadi l var koun trouh wela tetbedel tani $$ tro7 wela tetbedel 3labiha str dup khir strdup cha dir treservi l $$ l espase li tehtajou fel mem dir strcpy lel back to str hadik w tdiir $$ t pointi 3la hada espase ejdiid bah $$ yweli 3andha l espase ta3ha ejdiid wahedha /koun fi union derna char str[20] mechi char* str koun diract derna strcpy parceque lespase rah reservi li houwa tab de 20 mais hna derna char * str tema lazem strdup 
+
+    } 
+    | EXPREt {
+        StackNode* poppedElement = pop(&Operandes_pile);
+        push(&Operandes_pile, "CONDIT", poppedElement->operande_name, poppedElement->operande_type);
+        $$=$1;
+        }
+;
+EXPREt
+    : EXPREt add TERM   {   
+        if (!canPerformArithmetic($1, $3)) {
+            my_yyerror("Sementique error","","incompatible type.");
+        }
+
+
+        StackNode* poppedOpernade2 = pop(&Operandes_pile);
+        StackNode* poppedOpernade1 = pop(&Operandes_pile);
+
+        char *T=strdup(Cree_temp());
+
+        quadr("+",poppedOpernade1->operande_name,poppedOpernade2->operande_name,T);
+
+        char *type=strdup(Calculer_type(poppedOpernade1->operande_type,poppedOpernade2->operande_type));
+
+        push(&Operandes_pile, "EXPREt", T, type);
+
+
+
+        $$=strdup(addEntities($1,$3));// 3lah strdup: parce que add entite 3andha var pack to str hatet fiha l resulta w daret return doka $$ rah y pointi 3la hadi l var koun trouh wela tetbedel tani $$ tro7 wela tetbedel 3labiha str dup khir strdup cha dir treservi l $$ l espase li tehtajou fel mem dir strcpy lel back to str hadik w tdiir $$ t pointi 3la hada espase ejdiid bah $$ yweli 3andha l espase ta3ha ejdiid wahedha /koun fi union derna char str[20] mechi char* str koun diract derna strcpy parceque lespase rah reservi li houwa tab de 20 mais hna derna char * str tema lazem strdup 
+        // printf("\n\n------------res= %s\n\n",addEntities($1,$3));
+        
+        
+    } 
+    | EXPREt sub TERM {   
+        if (!canPerformArithmetic($1, $3)) {
+            my_yyerror("Sementique error","","incompatible type.");
+        }
+
+
+        StackNode* poppedOpernade2 = pop(&Operandes_pile);
+        StackNode* poppedOpernade1 = pop(&Operandes_pile);
+
+        char *T=strdup(Cree_temp());
+
+        quadr("-",poppedOpernade1->operande_name,poppedOpernade2->operande_name,T);
+
+        char *type=strdup(Calculer_type(poppedOpernade1->operande_type,poppedOpernade2->operande_type));
+
+        push(&Operandes_pile, "EXPREt", T, type);
+
+
+
+        $$=strdup(subEntities($1,$3));
+    } 
+    | TERM {
+        StackNode* poppedElement = pop(&Operandes_pile);
+        push(&Operandes_pile, "EXPREt", poppedElement->operande_name, poppedElement->operande_type);
+        $$=$1;
+    }
+;
+TERM
+    : TERM mul FACTOR {   
+        if (!canPerformArithmetic($1, $3)) {
+            my_yyerror("Sementique error","","incompatible type.");
+        }   
+
+
+        StackNode* poppedOpernade2 = pop(&Operandes_pile);
+        StackNode* poppedOpernade1 = pop(&Operandes_pile);
+
+        char *T=strdup(Cree_temp());
+
+        quadr("*",poppedOpernade1->operande_name,poppedOpernade2->operande_name,T);
+
+        char *type=strdup(Calculer_type(poppedOpernade1->operande_type,poppedOpernade2->operande_type));
+
+        push(&Operandes_pile, "TERM", T, type);
+
+
+        $$=strdup(mulEntities($1,$3));
+
+    } 
+    | TERM divi FACTOR {
+        if(isEntityZero($3)){
+            my_yyerror("Sementique error","","division sur zero.");
+        }else {
+            if (!canPerformArithmetic($1, $3)) {
+                my_yyerror("Sementique error","","incompatible type.");
+            }  
+
+
+
+            StackNode* poppedOpernade2 = pop(&Operandes_pile);
+            StackNode* poppedOpernade1 = pop(&Operandes_pile);
+
+            char *T=strdup(Cree_temp());
+
+            quadr("/",poppedOpernade1->operande_name,poppedOpernade2->operande_name,T);
+
+            char *type=strdup(Calculer_type(poppedOpernade1->operande_type,poppedOpernade2->operande_type));
+
+            push(&Operandes_pile, "TERM", T, type);
+
+
+
+            $$=strdup(divEntities($1,$3));
+        } 
+    }
+    | FACTOR {
+        StackNode* poppedElement = pop(&Operandes_pile);
+        push(&Operandes_pile, "TERM", poppedElement->operande_name, poppedElement->operande_type);
+        $$=$1;
+    }
+    ;
+
+FACTOR
+    : po EXPRE pf { 
+        StackNode* poppedElement = pop(&Operandes_pile);
+        push(&Operandes_pile, "FACTOR", poppedElement->operande_name, poppedElement->operande_type);
+        $$=$2;
+        }
+    | OPERAND { 
+        StackNode* poppedElement = pop(&Operandes_pile);
+        push(&Operandes_pile, "FACTOR", poppedElement->operande_name, poppedElement->operande_type);
+        $$=$1;
+    
+    }
+    ;
+
+OPERAND
+    :
+    idf {
+        if(!Declarer($1)){
+            my_yyerror("Sementique error",$1,"est non declare.");
+        }
+        char *res=strdup(GetValFromTS($1));
+        char *type=strdup(GetTypeFromTS($1));// wela 9ader tejbed e type mel val b GetTypeFromVal mais ana seyiit nkhali koulech kima derna fel cour
+        // printf("\n\n------------val ta3 idf= %s\n\n",res);
+        if ((res==NULL || strcmp(res," ")==0) && (strstr(type, "ARGUMENT") == NULL)){
+            my_yyerror("Sementique error",$1,"n'a pas d'une valeur");
+        } else{
+            push(&Operandes_pile, "OPERAND", strdup($1), type);
+            $$=strdup(res);
+        }
+    }
+    | LOGI {
+        push(&Operandes_pile, "OPERAND", $1, "LOGICAL");
+        $$=$1;
+    }
+
+    | inti {
+        char backToStr[20];
+        sprintf(backToStr, "%d", $1);
+        // printf("\npushed inti: %s \n", backToStr);
+        push(&Operandes_pile, "OPERAND", strdup(backToStr), "INTEGER");
+        $$=strdup(backToStr);
+    }
+
+    | real {
+        char backToStr[20];
+        sprintf(backToStr, "%g", $1);
+        push(&Operandes_pile, "OPERAND", backToStr, "REAL");
+        $$=strdup(backToStr);
+    }
+
+    | idf po TAILLE pf {
+        
+        if(!Declarer($1)){
+            my_yyerror("Sementique error",$1,"est non declare.");      
+        }
+        if(!verifier_in_out_table($1,$3))
+            my_yyerror("Sementique error","","out of rang"); 
+        //strcpy(taille,$3);
+        char table[100];
+        char *tab_taille =strdup($3);
+        // printf("\n-----------------------------------------taille:%s\n",tab_taille);
+        
+
+
+        char final_str[1024] = "";
+        char temp[1024];
+        int firstElement = 1;
+
+        char *token = strtok(tab_taille, ",");
+        while (token != NULL) {
+
+            StackNode* operande_tmp = pop(&Operandes_pile);
+            if (firstElement) {
+                // For the first element, directly copy it to final_str
+                snprintf(final_str, sizeof(final_str), "%s", operande_tmp->operande_name);
+                firstElement = 0; // Set the flag to 0 as the first element is added
+            } else {
+                // For subsequent elements, add a comma before the element
+                snprintf(temp, sizeof(temp), "%s,%s",operande_tmp->operande_name, final_str);
+                strcpy(final_str, temp); // Copy the temporary string back to final_str
+            }
+            token = strtok(NULL, ",");
+        }
+
+        sprintf(table, "%s(%s)", $1, final_str);
+        push(&Operandes_pile, "OPERAND", table, GetTypeFromTS($1));
+        $$=return_val_tab($1,$3);
+    }  //9ader n remplasiw taille b ENSpara_arith chhi lazem expr ma tmedlekch real tema lazem difinit expr spesial mafihach les real wela nkhalou lewla w f semantique ndirouh ma y acceptich les real ==>en fin dert deuxieme bah ndirha kima C resultat 3adi real chahi ida kan real l compilateur wa7dou yrodo int w maydirch erreur
+
+    | mc_call idf po ENSpara pf {
+        //R2
+        // show_table();
+        // int p = lookup($2);
+        // printf("r2 look up p:%d\n",p);
+        // if (p==-1){
+        //     my_yyerror("Sementique error",$3,"est non declare.2");
+        // }else{
+        //     if(table_fct[p].util){
+        //         sprintf(tmp,"%d",table_fct[p].address);
+        //         quadr("BR---",tmp,"vide","vide");
+        //     }else{
+        //         sprintf(tmp,"%d",table_fct[p].address);
+        //         quadr("BR---",tmp,"vide","vide");
+        //         table_fct[p].address=qc;
+        //     }
+        //     push_int(&fin_routine, qc);
+        // }
+
+        //R2 fin 
+        if(verifier_nb_argument($2,nb_argument)==1){
+            my_yyerror("Sementique error","","le nombre d'argument est uncorrect.");
+        }else if(verifier_nb_argument($2,nb_argument)==-1)
+            my_yyerror("Sementique error",$2,"est non declare.");
+        char *tab_taille =strdup($4);
+        // printf("\n-----------------------------------------taille:%s\n",tab_taille);
+        
+        
+        char final_str[1024] = "";
+        char temp[1024];
+        int firstElement = 1;
+
+        char *token = strtok(tab_taille, ",");
+        while (token != NULL) {
+
+            StackNode* operande_tmp = pop(&Operandes_pile);
+            if (firstElement) {
+                // For the first element, directly copy it to final_str
+                snprintf(final_str, sizeof(final_str), "%s", operande_tmp->operande_name);
+                firstElement = 0; // Set the flag to 0 as the first element is added
+            } else {
+                // For subsequent elements, add a comma before the element
+                snprintf(temp, sizeof(temp), "%s,%s",operande_tmp->operande_name, final_str);
+                strcpy(final_str, temp); // Copy the temporary string back to final_str
+            }
+            token = strtok(NULL, ",");
+        }
+
+        char fonct[100];
+        sprintf(fonct, "%s(%s)", $2, final_str);
+        push(&Operandes_pile, "OPERAND", fonct, GetTypeFromTS($2));
+
+        $$=return_val_fonction($2);nb_argument=0;
+    } // enspara parceque te9der t3ayat l fct b ay haja mouhim treja3 valeur 
+
+    | mc_call idf po pf {
+        //R2
+        // show_table();
+        // int p = lookup($2);
+        // printf("r2 look up p:%d\n",p);
+        // if (p==-1){
+        //     my_yyerror("Sementique error",$3,"est non declare.2");
+        // }else{
+        //     if(table_fct[p].util){
+        //         sprintf(tmp,"%d",table_fct[p].address);
+        //         quadr("BR---",tmp,"vide","vide");
+        //     }else{
+        //         sprintf(tmp,"%d",table_fct[p].address);
+        //         quadr("BR---",tmp,"vide","vide");
+        //         table_fct[p].address=qc;
+        //     }
+        //     push_int(&fin_routine, qc);
+        // }
+
+        //R2 fin 
+        if(verifier_nb_argument($2,nb_argument)==1){
+            my_yyerror("Sementique error","","le nombre d'argument est uncorrect.");
+        }else if(verifier_nb_argument($2,nb_argument)==-1)
+            my_yyerror("Sementique error",$2,"est non declare.");
+
+        char fonct[100];
+        sprintf(fonct, "%s()", $2);
+        push(&Operandes_pile, "OPERAND", fonct, GetTypeFromTS($2));
+
+        $$=return_val_fonction($2);nb_argument=0;
+    } // enspara parceque te9der t3ayat l fct b ay haja mouhim treja3 valeur 
 ;
 
-TYPE : MC_INTEGER {strcpy(save,"INTEGER");}
-	  | MC_REAL {strcpy(save,"FLOAT");}
-	  | MC_CARACTERE {strcpy(save,"caractere");}
-      
+ENSpara
+    : ENSpara verg valeur {
+        char* final_str = malloc(strlen($1) + strlen($3) + 4 + 1);
+        sprintf(final_str, "%s,%s", $1, $3);
+        $$=strdup(final_str);
+        nb_argument++;
+    } 
+    | valeur {
+        $$=strdup($1);
+        nb_argument++;}
 ;
-LIST_DEC : DEC_VAR  LIST_DEC 
-           | CONST_DECL  LIST_DEC
-		   | TAB_DECL  LIST_DEC 
-		   |
-		   
+TAILLE
+    : TAILLE verg valeur {
+        if(!isInteger($3)){
+            my_yyerror("Sementique error",$3,"n'est pas un entier");
+        }
+        if(strtol($3, NULL, 10)<0){
+            my_yyerror("Sementique error",$3,"est negative");
+        }
+        
+        char* final_str = malloc(strlen($1) + strlen($3) + 4 + 1);
+        sprintf(final_str, "%s,%s", $1, $3);
+        // printf("\n-----------------------------------------final str ta3 TAILLE MOR SPRINTF:%s\n",final_str);
+        $$=strdup(final_str);
+        // printf("\n-----------------------------------------str ta3 $$ TAILLE:%s\n",$$);
+    } 
+    | valeur {
+        if(!isInteger($1)){
+            my_yyerror("Sementique error",$1,"n'est pas un entier");
+        }
+        if(strtol($1, NULL, 10)<0){
+            my_yyerror("Sementique error",$1,"est negative");
+        }
+        
+        $$=strdup($1);
+    }
+;
+LOGI: mc_true {$$=strdup("true");}
+    | mc_false {$$=strdup("false");}
+;
+IDFS: ENSIDF | VIDE
+;
+ENSIDF: ENSIDF verg idf {Declarer($3);nb_argument++;} | idf {Declarer($1);nb_argument++;}
+;
+INSTS: VIDE | ENSINST
+;
+ENSINST: ENSINST INST | INST
+;
+INST: if_statement | read_statement | write_statement | dowhile_statement | assignment | eqival_statement
+;
+eqival_statement : mc_equival ens_list_vars pvg
+;
+ens_list_vars: ens_list_var | VIDE
+;
+ens_list_var: ens_list_var verg po list_var pf | po list_var pf
+;
+list_var
+    : list_var verg var {
+        StackNode* operande_tmp = pop(&Operandes_pile);
+    }
+    | var{
+        StackNode* operande_tmp = pop(&Operandes_pile);
+    }
+;
+var
+    : idf {
+        if(!Declarer($1)){
+            my_yyerror("Sementique error",$1,"est non declare.");
+        }
+        char *type=strdup(GetTypeFromTS($1));
+        push(&Operandes_pile, "OPERAND", strdup($1), type);
+        $$=strdup($1);
+    }
+    | idf po TAILLE pf {
+        // printf("\n-----------------------------------------taille ta3 $3 1:%s\n",$3);
+        if(!Declarer($1)){
+            my_yyerror("Sementique error",$1,"est non declare."); 
+        }
+        if(!verifier_in_out_table($1,$3)){
+            my_yyerror("Sementique error","","out of rang"); 
+        }
+
+        char table[100];
+        char *tab_taille =strdup($3);
+        char final_str[1024] = "";
+        char temp[1024];
+        int firstElement = 1;
+
+        char *token = strtok(tab_taille, ",");
+        while (token != NULL) {
+
+            StackNode* operande_tmp = pop(&Operandes_pile);
+            if (firstElement) {
+                // For the first element, directly copy it to final_str
+                snprintf(final_str, sizeof(final_str), "%s", operande_tmp->operande_name);
+                firstElement = 0; // Set the flag to 0 as the first element is added
+            } else {
+                // For subsequent elements, add a comma before the element
+                snprintf(temp, sizeof(temp), "%s,%s",operande_tmp->operande_name, final_str);
+                strcpy(final_str, temp); // Copy the temporary string back to final_str
+            }
+            token = strtok(NULL, ",");
+        }
+
+        sprintf(table, "%s(%s)", $1, final_str);
+        push(&Operandes_pile, "OPERAND", table, GetTypeFromTS($1));
+
+
+        $$=$1;
+        
+        strcpy(taille,$3);
+        // printf("\n-----------------------------------------taille ta3 $3 2:%s\n",taille);
+    }
+;
+if_statement: B_if else_clause mc_endif{
+    sprintf(tmp,"%d",qc);
+    ajour_quad(pop_int(&Fin_if),1,tmp);
+    printf("pgm juste");
+}
+;
+B_if: A_if mc_then ENSINST{
+    // Fin_if=qc;
+    push_int(&Fin_if, qc);
+    quadr("BR", "","vide", "vide");
+    sprintf(tmp,"%d",qc); // transformer entier vers string
+    ajour_quad(pop_int(&deb_else),1,tmp);
+}
+;
+A_if: mc_if po CONDI pf{
+    // deb_else=qc; // J'ai laisser le champs 2 vide. Je dois le remplir apres
+    push_int(&deb_else, qc);
+    StackNode* operande_tmp = pop(&Operandes_pile);
+    quadr("BZ", "",strdup(operande_tmp->operande_name), "vide");
+}
+;
+else_clause: mc_else ENSINST | VIDE
+;
+assignment
+    : var aff valeur pvg {   
+        if (!areCompatible(GetTypeFromTS($1), $3)) {
+            my_yyerror("Sementique error","","incompatible type.");
+        }
+        // printf("\n\n------------yes they are compatible for the assignment\n\n");
+        if(strstr(GetTypeFromTS($1),"TABLEAU")!=NULL){
+            A_M_tab($1, taille, $3);
+            char table[100];
+
+        }else {
+            if (!SetValInTS($1,$3)){
+                my_yyerror("Sementique error",$1,",affectation non accepte.");
+            }
+        }
+
+        StackNode* operande_tmp = pop(&Operandes_pile);
+        StackNode* poppedElement_var = pop(&Operandes_pile);
+        
+        quadr("=", operande_tmp->operande_name,"vide", poppedElement_var->operande_name);
+        $$=$1;
+    } //OGassi operande gauche d'afectation 
+;
+valeur
+    : str {
+        push(&Operandes_pile, "valeur", $1, "CHARACTER");
+        $$=strdup($1);
+    } //valeur ay haja 3andha valeur true false 5 4 7 "dfsakl" max(5)
+    | EXPRE {
+        StackNode* poppedElement = pop(&Operandes_pile);
+        push(&Operandes_pile, "valeur", poppedElement->operande_name, poppedElement->operande_type);
+        $$=$1;
+    } // hna expre rafda valeur belmiis true wela 5 3la chakl string
+;
+read_statement: mc_read po var pf pvg{StackNode* operande_tmp = pop(&Operandes_pile);} // kanet idf fi blaset var dertha ha ka parceque 9ader ydir read(t(5)); nafs echi f write var mechi idf
+;
+write_statement: mc_write po ENS_PARA_WRITE pf pvg 
+;
+ENS_PARA_WRITE: ENS_PARA_WRITE verg str | ENS_PARA_WRITE verg var{StackNode* operande_tmp = pop(&Operandes_pile);} | str | var{StackNode* operande_tmp = pop(&Operandes_pile);}
+;
+dowhile_statement: B_while ENSINST mc_enddo{
+    sprintf(tmp,"%d",pop_int(&deb_while));
+    quadr("BR", tmp,"vide", "vide");
+    sprintf(tmp,"%d",qc);
+    ajour_quad(pop_int(&Fin_while),1,tmp);
+}
+;
+B_while: A_while po CONDI pf{
+    push_int(&Fin_while, qc);
+    StackNode* operande_tmp = pop(&Operandes_pile);
+    quadr("BZ", "",strdup(operande_tmp->operande_name), "vide");
+}
+;
+A_while: mc_dowhile{
+    push_int(&deb_while, qc);
+}
+;
+CONDI
+    : EXPRE {
+        if (isBoolean($1)) {
+            $$=$1;
+        } else {
+            my_yyerror("Sementique error",$1,"is not boolean");
+        }
+    }
 ;
 
-  
-CONST_DECL : MC_CONST MC_IDF aff Int pvg {
-    // $2 est l'identifiant, $4 est l'entier
-    //printf("Constante déclarée : %s = %d\n", $2, $4);
-    // Insérer la constante dans la table des symboles ou autre traitement
-};
+%%
 
-TAB_DECL : TYPE MC_IDF crou Int crof pvg
+int main(int argc, char** argv)
 {
-    
-    printf("Tableau déclarée \n");
-
-};
-
-
-DEC_VAR: TYPE LIST_IDF pvg { 
-    for (j = 0; j < i; j++) {
-        // Vérification de la double déclaration
-        if (doubleDeclaration(IDF[j]) == 0) { 
-            // Si pas de double déclaration, insérer l'identifiant
-            insererTypeIDF(IDF[j], save);
-            DonnerVS(IDF[j], 1); // Marquer comme variable
-        } else if (doubleDeclaration(IDF[j]) == -1) {
-            // Gestion d'erreur pour double déclaration
-            printf("\n ==============> Erreur Sémantique : Double déclaration pour %s à la ligne : %d et colonne : %d <==============\n", IDF[j], nb_ligne, col);
-            return -1;
+    if (argc > 1) {
+        file_name = argv[1];
+        FILE* file = fopen(argv[1], "r");
+        if (!file) {
+            // Handle error
+            perror("Cannot open input_file.txt");
+            return EXIT_FAILURE;
         }
+        yyin = file;
     }
-    // Réinitialiser les structures après traitement
-    Re_TAB(IDF, i);
-    i = 0;
-} 
-| TYPE MC_IDF MC_DIMENSION parouv entier parferm pvg {
-    // Vérification des dimensions pour les tableaux
-    strcpy(sauvType, save);
-    if (doubleDeclaration($2) == 0) { 
-        insererTypeIDF($2, sauvType);
-        DonnerVS($2, 1); // Marquer comme variable
-    } else if (doubleDeclaration($2) == -1) {
-        printf("\n ==============> Erreur Sémantique : Double déclaration pour %s à la ligne : %d et colonne : %d <==============\n", $2, nb_ligne, col);
-        return -1;
-    }
-
-    if ($5 < 0) {
-        // Vérification des dimensions invalides
-        printf("\n ==============> Erreur Sémantique : Dimension négative pour %s à la ligne : %d et colonne : %d <==============\n", $2, nb_ligne, col);
-        return -1;
-    }
-} 
-| TYPE MC_IDF MC_DIMENSION parouv entier vg entier parferm pvg {
-    strcpy(sauvType, save);
-    if (doubleDeclaration($2) == 0) { 
-        insererTypeIDF($2, sauvType);
-        DonnerVS($2, 1); // Marquer comme variable
-    } else if (doubleDeclaration($2) == -1) {
-        printf("\n ==============> Erreur Sémantique : Double déclaration pour %s à la ligne : %d et colonne : %d <==============\n", $2, nb_ligne, col);
-        return -1;
-    }
-
-    if (($7 < $5) || ($5 < 0)) {
-        // Vérification des dimensions invalides
-        printf("\n ==============> Erreur Sémantique : Dimension invalide pour %s à la ligne : %d et colonne : %d <==============\n", $2, nb_ligne, col);
-        return -1;
-    }
-} 
-| TYPE MC_IDF aff VAL pvg {
-    // Gestion des déclarations avec affectation
-    int x = doubleDeclaration($2);
-    if (x == -1) {
-        // Gestion des cas spécifiques
-        if (getCstDec($2) == 0) {
-            printf("\n ==============> Erreur Sémantique : Constante %s redéclarée à la ligne : %d <==============\n", $2, nb_ligne);
-            return -1;
-        } else if (get_type($2) != type) {
-            printf("\n ==============> Erreur Sémantique : Incompatibilité de type pour %s à la ligne : %d <==============\n", $2, nb_ligne);
-            return -1;
-        }
-    } else {
-        // Insertion et initialisation en fonction du type
-        switch (type) {
-            case 1: // INT
-                insererTypeIDF($2, "INT");
-                sprintf(v, "%d", valCst);
-                DonnerVS($2, 0); // Marquer comme constante
-                insererVAL($2, v);
-                break;
-            case 2: // FLOAT
-                insererTypeIDF($2, "FLOAT");
-                sprintf(v, "%f", valCst);
-                insererVAL($2, v);
-                break;
-            case 3: // CHAR
-                insererTypeIDF($2, "CHAR");
-                insererVAL($2, cstStr);
-                break;
-            case 4: // STRING
-                insererTypeIDF($2, "STRING");
-                insererVAL($2, cstStr);
-                break;
-        }
-        setCstDec($2, 0); // Marquer comme déclaré
-        updateCodeCst($2, 0); // Mettre à jour le code
-    }
-
-    // Réinitialiser après traitement
-    Re_TAB(IDF, i);
-    i = 0;
-};
-
-LIST_IDF: MC_IDF vg LIST_IDF {  strcpy(IDFF , $1);  strcpy(IDF[i] , IDFF);  i++;  }
-         | MC_IDF   {  strcpy(IDFF , $1);  strcpy(IDF[i] , IDFF);  i++;  }
-; 
-                                                  
-
-LIST_INST:INST LIST_INST   
-        |  FOR LIST_INST
-		| WHILE LIST_INST
-		| IF_ELSE LIST_INST                                      
-;		                                  
-
-
-INST: INST_READLN
-    |INST_writeln
-    |INST_IF
-    |EXPR_ARITH
-;
-INST_READLN: MC_READLN parouv MC_IDF parferm pvg
-;
-INST_writeln: MC_writeln parouv COMMANDES parferm pvg
-;
-COMMANDES: MC_CHAINE vg MC_IDF vg COMMANDES
-          |MC_CHAINE vg MC_IDF
-          |MC_CHAINE
-          |MC_CARACTERE
-          |MC_IDF
-;
-
-TYPE_AFF:MC_IDF  {
-	 				if(nonDeclared($1)==-1 ){
-		 				printf("Erreur Semantique idf non declare a la ligne : %d et laColonne : %d <============== \n ",nb_ligne,col);return -1;
-	 				}
-} 
-|   
-| EXPRESSION
-;
-AFF_COURT: MC_IDF {
-	 				if(nonDeclared($1 )==-1 ){
-		 				printf("Erreur Semantique idf non declare a la ligne : %d et laColonne : %d <============== \n ",nb_ligne,col);return -1;
-	 				}
-} 
-| VAL
-;
-EXPRESSION: AFF_COURT OPERATEUR_A TYPE_AFF 
-            | parouv EXPRESSION parferm
-;
-EXPR_ARITH:MC_IDF aff CALCUL pvg;
-								
-				
-		   |MC_IDF aff VAL pvg {	
-			   								
-
-			   					if (nonDeclared($1)==-1)
-								{printf(" ==============>Erreur Semantique : la variable %s est non Declarer dans la  partie declaration  a la ligne %d et laColonnes %d !!! <============== \n",$1,nb_ligne,col);
-								return -1;}
-								else if ( DemanderVS($1) ==0 ) {
-												if(  getCstDec($1)==0){
-
-															printf(" ==============>Erreur semantique : le %s c'est une constante , tu peut pas fait une affectation  , a la ligne %d et laColonne : %d<============== \n",$1,nb_ligne,col);
-															return -1;
-												}			
-															}
-															 
-								if( ( type <3 && get_type($1) < 3 ) ){
-									switch(get_type($1)){
-										case 1: 
-											sprintf(v , "%d" , (int)valFloat);
-											insererVAL($1,v); 
-											setCstDec($1,0);
-
-											break;
-										case 2:
-											sprintf(v , "%f" , valFloat);
-											insererVAL($1,v);
-											setCstDec($1,0);
-
-											break;
-									}
-								}
-
-								
-
-
-								else switch (type)
-											{
-											case 3 :
-												insererVAL($1,cstStr);
-												setCstDec($1,0);
-											break;
-											case 4 :
-												insererVAL($1,cstStr);
-												setCstDec($1,0);
-											break;
-											
-											}
-
-		                  }
-									
-									
-									
-								
-
-
-		   |MC_IDF aff MC_IDF pvg{  
-			   					if(nonDeclared($1) == -1){
-									   printf(" ==============> Erreur Semantique: variable %s non declare a la ligne : %d et laColonne : %d <============== \n",$3,nb_ligne,col);return -1;
-								   }
-																
-								if(nonDeclared($3) == -1){
-									printf(" ==============> Erreur Semantique: variable %s non declare a la ligne : %d et laColonne : %d <============== \n",$3,nb_ligne,col);return -1;
-								}
-
-								if ( DemanderVS($1) ==0 ) {
-												if(  getCstDec($1)==0){
-
-															printf(" ==============>Erreur semantique : le %s c'est une constante , tu peut pas fait une affectation  , a la ligne %d et laColonne : %d<============== \n",$1,nb_ligne,col);
-															return -1;
-												}			
-															}
-
-								if(get_type($1)<2 && get_type($3)<2){
-									if(get_type($1)==1){
-										updateValIdf($1,$3);
-									}
-								}
-								else	if(get_type($1) != get_type($3)){
-											printf(" ==============> Erreur Semantique : incompatibilte de type  a la ligne : %d et laColonne : %d !!! <============== \n",nb_ligne,col);
-										return -1;
-									}
-
-								updateValIdf($1,$3);
-
-
-
-								};
-
-CALCUL: MC_IDF OPERATEUR_A MC_IDF {
-	 				if(nonDeclared($1 )==-1 ){
-		 				printf("Erreur Semantique idf non declare a la ligne : %d et laColonne : %d <============== \n ",nb_ligne,col);return -1;
-	 				}
-
-					
-
-					if(get_type($1) != get_type($3)){ 
-
-									printf(" ==============> Erreur Semantique : incompatibilte de type  a la ligne: %d et laColonne : %d  !!! <============== \n",nb_ligne,col);
-										return -1;
-								}
-					
-					
-					calcul($1,$3,operateur[opera-1],&k); opera--;
-					calculResult[j]= k;  j++;
-					
-
- }
-
-
-
-		| MC_IDF OPERATEUR_A VAL {
-	 								if(nonDeclared($1) == -1 ){
-		 							printf("==============> Erreur Semantique idf non declare a la ligne : %d et laColonne : %d <============== \n ",nb_ligne,col);
-									return -1;
-	 							}
-
-								 if(get_type($1) >2 ||  type > 2 ){ 
-									printf("==============> Erreur Semantique : imncompatibilte de type  a la ligne : %d et laColonne : %d  !!!<============== \n",nb_ligne,col);
-								return -1;}
-								
-								if(valCst==0 && operateur[opera-1]==4){
-									printf("==============> Erreur Semantique : devision sur ZEROOO a la ligne : %d et laColonne : %d <============== \n",nb_ligne,col);
-									return -1;
-								}
-								
-								 calculIdfXCst($1,&valFloat,operateur[opera-1],&k); opera--;
-								 					calculResult[j]= k; j++;
-
-		}
-								
-
-
-
-		| VAL OPERATEUR_A entier{
-			if($3 == 0)
-            printf("==============>Erreur Semantique devision sur zero  a la ligne : %d et laColonne : %d <============== \n ",nb_ligne,col);return -1;
-			
-			calculCstXCst(&cstNum[y-1],&cstNum[y-2],operateur[opera-1],&k); opera--;
-			
-			calculResult[j]=k;	j++;				
-
-
-		}
-		| VAL OPERATEUR_A MC_IDF {
-
-	 								if(nonDeclared($3 )==-1 ){
-		 								printf("==============>Erreur Semantique idf non declare a la ligne : %d et laColonne : %d <============== \n ",nb_ligne,col);return -1;
-	 									}
-										 
-									 if(get_type($3) >2 ||  type > 2){
-									printf("==============> Erreur Semantique : imncompatibilte de type  a la ligne : %d et laColonne : %d  !!! <============== \n",nb_ligne,col);
-								return -1;}
-								
-								 calculIdfXCst($3,&valFloat,operateur[opera-1],&k); opera--;
-										 					calculResult[j]= k;j++; 
-
-										 
-										 	}
-
-
-		| MC_IDF OPERATEUR_A  CALCUL	   { 
-	 								if(nonDeclared($1 )==-1 ){
-		 							printf("==============> Erreur Semantique idf non declare a la ligne : %d et laColonne : %d <============== \n",nb_ligne,col);return -1;
-	 									}
-										
-								calculIdfXCst($1,&calculResult[j-1],operateur[opera-1],&k);opera--;
-								
-								calculResult[j]= k; j++;
-								 
-
-
-								// na7sbo w n7ato f sommet de pile, resultat ta3 calcul tkon f sommet sema hna ndiro idf operateur sommet de pile, apres nremplaciw sommet l9dim b resultat jdida,
-								// f expression arethmetique (idf oper calcul) nvidiw tableau, tkon deja fih ghir 1
-								// f le cas ta3 calcul oper calcul, nahasbo sommet de pile operateur l'element li 9bel sommet, na7iwhom w n7ato resultat
-
-
-
-									}
-		
-		| VAL OPERATEUR_A CALCUL {
-			calculCstXCst(&cstNum[y-1],&calculResult[j-1],operateur[opera-1],&k); opera--;
-			calculResult[j]=k;j++;
-
-		}
-	
-;
-
-INST_IF: MC_IF  CONDITION_CPLX MC_THEN LIST_INST MC_ENDIF
-        |MC_IF  CONDITION_CPLX MC_THEN LIST_INST MC_ELSE LIST_INST MC_ENDIF
-;
-CONDITION_CPLX: CONDITION
-               |parouv CONDITION point LIST_CONDITION point CONDITION parferm
-			   |MC_IF parouv parouv LIST_CONDITION parferm OPERATEUR_A parouv MC_NEGATION_LOGIQUE parouv MC_IDF parferm parferm
-;
-CONDITION: parouv MC_IDF point LIST_CONDITION point VAL parferm   
-           {
-	 				if(nonDeclared($2 )==-1 ){
-		 				printf("Erreur Semantique idf non declare a la ligne : %d et laColonne : %d <============== \n ",nb_ligne,col);return -1;
-	 				}
-	 				
-
-          }
-
-          |parouv MC_IDF point LIST_CONDITION point MC_IDF parferm  
-		             {
-	 				if(nonDeclared($2 )==-1 ){
-		 				printf("Erreur Semantique idf non declare a la ligne : %d et laColonne : %d <============== \n ",nb_ligne,col);return -1;
-					}
-
-          }
-          |parouv EXPRESSION point LIST_CONDITION point EXPRESSION parferm
-          |parouv MC_IDF point LIST_CONDITION point EXPRESSION parferm
-          |parouv EXPRESSION point LIST_CONDITION point VAL parferm
-          |parouv EXPRESSION point LIST_CONDITION point MC_IDF parferm
-		  
-;
-LIST_CONDITION: MC_SUP
-               |MC_SUPEGAL
-               |MC_EGAL
-               |MC_NOEGAL
-               |MC_INFEGAL
-               |MC_INF
-               |MC_AND
-               |MC_OR
-;
-OPERATEUR_A : addition | multiplication | soustraction |division
-; 
-VAL: entier | mc_bool | reel | MC_CHAINE | MC_CARACTERE
-;
-%%
-int main(int argc, char *argv[])
-{ 
-     
-	if (argc != 2) {
-        printf("Usage: %s <fichier.txt>\n", argv[0]);
-        return 1;
-    }
-    
-  
-    FILE *fichier = fopen(argv[1], "r");
-    if (fichier == NULL) {
-        perror("Erreur lors de l'ouverture du fichier");
-        return 1;
-    }
-    initialisation();
-   
-    yyin = fichier;
-    int result = yyparse();
+    yyparse();
+    yylex();
     afficher();
-	return 0;
-}
+    afficher_qdr();
+    
+    if (yyin != stdin) {
+        fclose(yyin);
+    }
+    afficher_pile(Operandes_pile);
+    
+   return 0;
+ }
+ int yywrap ()
+ {}
 
-int yywrap(){
-	return 1;
-}
-
-int parse() 
-{
-
- return yyparse();
-
-}
-
+int yyerror ( char*  msg )
+  {
+     printf("File \"%s\", line %d, character %d: %s\n",file_name, nb_ligne, Col,msg);
+     exit(EXIT_FAILURE);
+   }
+int my_yyerror ( char*  msg, char* entite, char* description)
+ {
+    printf("File \"%s\", line %d, character %d: %s, %s %s\n", file_name, nb_ligne, Col, msg, entite, description);
+    exit(EXIT_FAILURE);
+  }

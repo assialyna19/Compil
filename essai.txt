@@ -1,0 +1,62 @@
+REAL ROUTINE ADD(A,B)
+ADD=A+B;
+ENDR
+
+INTEGER ROUTINE MAYA(A,B) %tous les erreur dans cette fonction;
+INTEGER k=5; 
+INTEGER tab DIMENSION(3,1);
+%INTEGER tab DIMENSION(-1); %taille negative;
+REAL F;
+LOGICAL C=TRUE;
+%INTEGER k; %Double declaration;
+%B=8/0; %division sur 0;
+%k=8.2; %incompatible type;
+F=F+1; %var n'a pas d'une valeur;
+F=8; %march normale;
+%F=C; %incompatible type; real<--true!
+A=9;
+%D=8; %variable non declarer;
+%tab(4,0)=7; % out of rang;
+%F=CALL ADD(k,k,B); % le nombre d'argument est uncorrect;
+%tab(0)=7; % out of range;
+MAYA= A+B;
+%MAYA=C; %incompatible type; INTEGER FONCTION <-- TRUE
+ENDR
+
+INTEGER ROUTINE MIMI(A,B)
+A=548.3;
+B=CALL MAYA(A,B);
+MIMI=5;
+ENDR
+PROGRAM HelloAcad
+
+INTEGER tab DIMENSION(70,30);
+INTEGER tab2 DIMENSION(80);
+REAL F;
+LOGICAL D=TRUE;
+
+% Déclarations;
+INTEGER A=5;
+INTEGER B=5;
+CHARACTER E="this is a string";
+LOGICAL C;
+REAL Y;
+tab(0,2)=5;
+tab2(0)=8;
+
+IF(2.NE.8.OR.6.LT.5) THEN
+    Y=65.3+8+A+9*2/0.5;
+ENDIF
+DOWHILE(2.LT.6.AND.A.EQ.9) 
+    WRITE("ASFD","AFSD",B);
+ENDDO
+
+Y=tab2(0);
+Y=CALL MAYA(A,B);
+Y=CALL MAYA(A,B);
+Y=CALL MAYA(A,B);
+F=CALL ADD(A,B);
+A=8;
+EQUIVALENCE(A,B),(A,B);
+
+END

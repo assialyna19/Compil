@@ -39,72 +39,49 @@
    /* Put the tokens into the symbol table, so that GDB and other debuggers
       know about them.  */
    enum yytokentype {
-     cst_int = 258,
-     cst_real = 259,
-     cst_str = 260,
-     ERREUR_LEXICAL = 261,
-     MC_PROGRAMME = 262,
-     MC_END = 263,
-     MC_IDF = 264,
-     MC_CHAINE = 265,
-     MC_writeln = 266,
-     MC_READLN = 267,
-     MC_ENDIF = 268,
-     MC_ELSE = 269,
-     MC_THEN = 270,
-     MC_IF = 271,
-     MC_ENDDO = 272,
-     MC_BEGIN = 273,
-     MC_FOR = 274,
-     MC_WHILE = 275,
-     MC_DO = 276,
-     MC_ENTIER = 277,
-     MC_REAL = 278,
-     MC_VAR = 279,
-     MC_CONST = 280,
-     MC_CARACTERE = 281,
-     MC_INTEGER = 282,
-     MC_DIMENSION = 283,
-     MC_ROUTINE = 284,
-     MC_ENDR = 285,
-     MC_TAB = 286,
-     MC_SUP = 287,
-     MC_SUPEGAL = 288,
-     MC_INF = 289,
-     MC_NOEGAL = 290,
-     MC_EGAL = 291,
-     MC_OR = 292,
-     MC_AND = 293,
-     MC_INFEGAL = 294,
-     Int = 295,
-     pvg = 296,
-     vg = 297,
-     th = 298,
-     division = 299,
-     crof = 300,
-     crou = 301,
-     soustraction = 302,
-     addition = 303,
-     multiplication = 304,
-     parouv = 305,
-     parferm = 306,
-     couvrante = 307,
-     cfermante = 308,
-     point = 309,
-     aff = 310,
-     pourcentage = 311,
-     acov = 312,
-     acoferm = 313,
-     entier = 314,
-     mc_bool = 315,
-     reel = 316,
-     MC_NEGATION_LOGIQUE = 317,
-     OU = 318,
-     ET = 319,
-     supe = 320,
-     infe = 321,
-     sup = 322,
-     inf = 323
+     idf = 258,
+     aff = 259,
+     mc_prgrm = 260,
+     mc_rtin = 261,
+     inti = 262,
+     real = 263,
+     mc_endr = 264,
+     mc_call = 265,
+     mc_dim = 266,
+     mc_logi = 267,
+     mc_char = 268,
+     mc_true = 269,
+     mc_false = 270,
+     mc_read = 271,
+     mc_write = 272,
+     pvg = 273,
+     str = 274,
+     mc_int = 275,
+     mc_real = 276,
+     mc_end = 277,
+     mc_if = 278,
+     mc_then = 279,
+     mc_else = 280,
+     mc_dowhile = 281,
+     mc_enddo = 282,
+     mc_equival = 283,
+     mc_or = 284,
+     ge = 285,
+     eq = 286,
+     ne = 287,
+     le = 288,
+     add = 289,
+     sub = 290,
+     mul = 291,
+     divi = 292,
+     mc_and = 293,
+     mc_endif = 294,
+     lt = 295,
+     gt = 296,
+     po = 297,
+     pf = 298,
+     verg = 299,
+     err = 300
    };
 #endif
 
@@ -115,7 +92,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 49 "syntaxique.y"
+#line 35 "syntaxique.y"
 
          int     entier;
          char*   str;
@@ -124,7 +101,7 @@ typedef union YYSTYPE
 
 
 /* Line 1676 of yacc.c  */
-#line 128 "syntaxique.tab.h"
+#line 105 "syntaxique.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
